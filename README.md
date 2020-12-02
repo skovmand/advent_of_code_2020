@@ -1,21 +1,24 @@
-# Advent20
+# Advent of Code 2020
 
-**TODO: Add description**
+![](https://github.com/skovmand/advent_of_code_2020/workflows/Santa%20CI/badge.svg)
 
-## Installation
+My solutions to [Advent of Code 2020](https://adventofcode.com/) in [Elixir](https://elixir-lang.org) :heart:
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `advent_20` to your list of dependencies in `mix.exs`:
+My goals for AoC2020:
 
-```elixir
-def deps do
-  [
-    {:advent_20, "~> 0.1.0"}
-  ]
-end
+- Complete every day
+- Exercise and improve my Elixir skills
+- Solve some puzzles
+- Publish readable code
+
+I will not optimize for speed, or for lines of code.
+
+
+## Run the tests
+
+Check out the project, fetch the dependencies and run the tests:
+
 ```
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/advent_20](https://hexdocs.pm/advent_20).
-
+mix deps.get
+mix test
+```
