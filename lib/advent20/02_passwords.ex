@@ -48,9 +48,10 @@ defmodule Advent20.PoliciesAndPasswords do
     char_at_pos_1 = Enum.at(password_chars, pos_1 - 1)
     char_at_pos_2 = Enum.at(password_chars, pos_2 - 1)
 
-    match_pos_1 = character == char_at_pos_1 and not (character == char_at_pos_2)
-    match_pos_2 = character == char_at_pos_2 and not (character == char_at_pos_1)
-
-    match_pos_1 or match_pos_2
+    xor(character == char_at_pos_1, character == char_at_pos_2)
   end
+
+  defp xor(true, false), do: true
+  defp xor(false, true), do: true
+  defp xor(_, _), do: false
 end
