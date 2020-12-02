@@ -1,13 +1,17 @@
 defmodule Advent20.ExpenseReport do
+  @moduledoc """
+  Day 1: Report Repair
+  """
+
   @doc """
-  Day 1 Part 1: Find two numbers in a set that add up to a sum
+  Part 1: Find two numbers in a set that add up to a sum
   """
   def find_sum_2(number_set, sum) do
     find_sum(number_set, sum)
   end
 
   @doc """
-  Day 1 Part 2: Find three numbers in a set that add up to a sum
+  Part 2: Find three numbers in a set that add up to a sum
   """
   def find_sum_3(number_set, sum) do
     Enum.reduce_while(number_set, nil, fn number_1, nil ->
