@@ -10,4 +10,8 @@ defmodule Advent20.PoliciesAndPasswordsTest do
   test "A: Counts valid passwords" do
     assert PoliciesAndPasswords.count_valid_passwords(@passwords) == 469
   end
+
+  test "B: Counts valid passwords with the correct policy" do
+    assert PoliciesAndPasswords.count_valid_passwords_with_2nd_policy(@passwords) == 267
+  end
 end
