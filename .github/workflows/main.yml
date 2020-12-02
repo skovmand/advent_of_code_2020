@@ -1,0 +1,22 @@
+name: Santa CI
+
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: elixir:1.11.2-alpine
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Dependencies
+        run: |
+          mix local.rebar --force
+          mix local.hex --force
+          mix deps.get
+          mix compile
+      - name: Run Tests
+        run: mix test
+      - name: Formatting
+        run: mix format --check-formatted
+
