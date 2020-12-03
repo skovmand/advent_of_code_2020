@@ -13,5 +13,11 @@ defmodule Advent20.TreesTest do
   end
 
   test "B: Counts valid passwords with the correct policy" do
+    product =
+      [{1, 1}, {3, 1}, {5, 1}, {7, 1}, {1, 2}]
+      |> Enum.map(&Geology.count_trees(@geology, &1))
+      |> Enum.reduce(&Kernel.*/2)
+
+    assert product == 3_064_612_320
   end
 end
