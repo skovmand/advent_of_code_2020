@@ -3,28 +3,6 @@ defmodule Advent20.Passport do
   Day 4: Passport Processing
   """
 
-  @doc """
-  Part A
-  """
-  def count_valid_passports(passport_input_lists) do
-    passport_input_lists
-    |> Stream.map(&create_passport/1)
-    |> Enum.count(&valid_passport?/1)
-  end
-
-  defp create_passport(password_input_list) do
-    password_input_list
-    |> Enum.reduce(%{}, fn input, passport ->
-      [field, value] = String.split(input, ":")
-      Map.put(passport, field, value)
-    end)
-  end
-
-  defp valid_passport?(%{} = passport) do
-    ["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"]
-    |> Enum.all?(&Map.has_key?(passport, &1))
-  end
-
   defmodule Passport do
     use Ecto.Schema
     import Ecto.Changeset
@@ -97,7 +75,27 @@ defmodule Advent20.Passport do
   end
 
   @doc """
+  Part A
+  """
+  def count_valid_passports(passport_input_lists) do
+    passport_input_lists
+    |> Stream.map(&create_passport/1)
+    |> Stream.map(&Passport.changeset/1)
+    |> Enum.count(& &1.valid?)
+  end
+
+  defp create_passport(password_input_list) do
+    password_input_list
+    |> Enum.reduce(%{}, fn input, passport ->
+      [field, value] = String.split(input, ":")
+      Map.put(passport, field, value)
+    end)
+  end
+
+  @doc """
   Part B
+
+  The same as Part A, but also uses the extended validation in the Ecto Schema
   """
   def count_valid_passports_strict(passport_input_lists) do
     passport_input_lists
