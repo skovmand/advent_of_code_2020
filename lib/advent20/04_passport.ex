@@ -42,8 +42,12 @@ defmodule Advent20.Passport do
 
     def changeset(params) do
       %__MODULE__{}
-      |> cast(params, [:byr, :iyr, :eyr, :hgt, :hcl, :ecl, :pid, :cid], empty_values: [])
+      |> cast(params, [:byr, :iyr, :eyr, :hgt, :hcl, :ecl, :pid, :cid])
       |> validate_required([:byr, :iyr, :eyr, :hgt, :hcl, :ecl, :pid])
+    end
+
+    def extended_validation(changeset) do
+      changeset
       |> validate_number(:byr, greater_than_or_equal_to: 1920, less_than_or_equal_to: 2002)
       |> validate_number(:iyr, greater_than_or_equal_to: 2010, less_than_or_equal_to: 2020)
       |> validate_number(:eyr, greater_than_or_equal_to: 2020, less_than_or_equal_to: 2030)
@@ -55,27 +59,24 @@ defmodule Advent20.Passport do
     end
 
     defp validate_height(changeset, field) do
-      value = fetch_field!(changeset, field)
+      input = fetch_field!(changeset, field)
 
-      if(not height_valid?(value), do: changeset |> add_error(field, "not valid"), else: changeset)
+      valid? =
+        case Regex.run(~r/(\d+)(cm|in)/, input, capture: :all_but_first) do
+          [height, "cm"] ->
+            int_height = String.to_integer(height)
+            int_height >= 150 and int_height <= 193
+
+          [height, "in"] ->
+            int_height = String.to_integer(height)
+            int_height >= 59 and int_height <= 76
+
+          _ ->
+            false
+        end
+
+      if(not valid?, do: changeset |> add_error(field, "not valid"), else: changeset)
     end
-
-    defp height_valid?(input) when is_binary(input) do
-      case Regex.run(~r/(\d+)(cm|in)/, input, capture: :all_but_first) do
-        [height, "cm"] ->
-          int_height = String.to_integer(height)
-          int_height >= 150 and int_height <= 193
-
-        [height, "in"] ->
-          int_height = String.to_integer(height)
-          int_height >= 59 and int_height <= 76
-
-        _ ->
-          false
-      end
-    end
-
-    defp height_valid?(_), do: false
 
     defp validate_hair_color(changeset, field) do
       valid? =
@@ -88,11 +89,8 @@ defmodule Advent20.Passport do
     end
 
     defp validate_password_is_only_numbers(changeset, field) do
-      valid? =
-        case fetch_field!(changeset, field) do
-          value when is_binary(value) -> Regex.match?(~r/^\d{9}$/, value)
-          _ -> false
-        end
+      input = fetch_field!(changeset, field)
+      valid? = Regex.match?(~r/^\d{9}$/, input)
 
       if(not valid?, do: changeset |> add_error(field, "not valid"), else: changeset)
     end
@@ -105,6 +103,8 @@ defmodule Advent20.Passport do
     passport_input_lists
     |> Stream.map(&create_passport/1)
     |> Stream.map(&Passport.changeset/1)
+    |> Stream.filter(& &1.valid?)
+    |> Stream.map(&Passport.extended_validation/1)
     |> Enum.count(& &1.valid?)
   end
 end
