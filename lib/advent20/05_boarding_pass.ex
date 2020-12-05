@@ -25,31 +25,32 @@ defmodule Advent20.BoardingPass do
   end
 
   defp binary_partition(input) do
-    space = :math.pow(2, String.length(input)) |> Kernel.trunc()
-
     input
     |> String.codepoints()
     |> Enum.map(&prepare_input/1)
-    |> do_binary_partition(1, space)
-    |> Kernel.-(1)
+    |> parse_binary()
   end
 
-  defp prepare_input("F"), do: :lower
-  defp prepare_input("L"), do: :lower
-  defp prepare_input("B"), do: :upper
-  defp prepare_input("R"), do: :upper
+  defp prepare_input("F"), do: 0
+  defp prepare_input("L"), do: 0
+  defp prepare_input("B"), do: 1
+  defp prepare_input("R"), do: 1
 
-  defp do_binary_partition([:lower | tail], floor, ceil) do
-    range = ceil - floor + 1
-    do_binary_partition(tail, floor, ceil - range / 2)
+  @doc """
+  Parse a list of 0 and 1s into a base-10 number
+  """
+  def parse_binary(list, sum \\ 0)
+
+  def parse_binary([0 | tail], sum), do: parse_binary(tail, sum)
+
+  def parse_binary([1 | tail], sum) do
+    exp = length(tail)
+    sum = sum + :math.pow(2, exp)
+
+    parse_binary(tail, sum)
   end
 
-  defp do_binary_partition([:upper | tail], floor, ceil) do
-    range = ceil - floor + 1
-    do_binary_partition(tail, floor + range / 2, ceil)
-  end
-
-  defp do_binary_partition([], result, _result), do: Kernel.trunc(result)
+  def parse_binary([], sum), do: Kernel.trunc(sum)
 
   @doc """
   B: Find own seat id
