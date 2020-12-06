@@ -3,6 +3,19 @@ defmodule Advent20.Passport do
   Day 4: Passport Processing
   """
 
+  # Set up a stream of passport inputs
+  defp passport_input_stream(input_filename) do
+    input_filename
+    |> File.stream!()
+    |> Stream.map(&String.trim/1)
+    |> Stream.chunk_by(&(&1 == ""))
+    |> Stream.reject(&(&1 == [""]))
+    |> Stream.map(fn raw_passport ->
+      Enum.flat_map(raw_passport, fn line -> String.split(line, " ") end)
+    end)
+  end
+
+  # We're using Ecto for the validation, yeah!
   defmodule Passport do
     use Ecto.Schema
     import Ecto.Changeset
@@ -75,10 +88,10 @@ defmodule Advent20.Passport do
   end
 
   @doc """
-  Part A
+  Part 1
   """
-  def count_valid_passports(passport_input_lists) do
-    passport_input_lists
+  def count_valid_passports(input_filename) do
+    passport_input_stream(input_filename)
     |> Stream.map(&create_passport/1)
     |> Stream.map(&Passport.changeset/1)
     |> Enum.count(& &1.valid?)
@@ -93,12 +106,10 @@ defmodule Advent20.Passport do
   end
 
   @doc """
-  Part B
-
-  The same as Part A, but also uses the extended validation in the Ecto Schema
+  Part 2. The same as Part A, but also uses the extended validation in the Ecto Schema
   """
-  def count_valid_passports_strict(passport_input_lists) do
-    passport_input_lists
+  def count_valid_passports_strict(input_filename) do
+    passport_input_stream(input_filename)
     |> Stream.map(&create_passport/1)
     |> Stream.map(&Passport.changeset/1)
     |> Stream.filter(& &1.valid?)

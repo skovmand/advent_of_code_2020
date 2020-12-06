@@ -3,21 +3,13 @@ defmodule Advent20.PassportTest do
 
   alias Advent20.Passport
 
-  @passports "04_passports.txt"
-             |> Path.expand("input_files")
-             |> File.read!()
-             |> String.split("\n")
-             |> Stream.chunk_by(&(&1 == ""))
-             |> Stream.reject(&(&1 == [""]))
-             |> Enum.map(fn raw_passport ->
-               Enum.flat_map(raw_passport, fn line -> String.split(line, " ") end)
-             end)
+  @input_filename Path.expand("04_passports.txt", "input_files")
 
   test "A: it counts valid passports" do
-    assert Passport.count_valid_passports(@passports) == 170
+    assert Passport.count_valid_passports(@input_filename) == 170
   end
 
   test "B: it counts valid passports with strict rules" do
-    assert Passport.count_valid_passports_strict(@passports) == 103
+    assert Passport.count_valid_passports_strict(@input_filename) == 103
   end
 end
