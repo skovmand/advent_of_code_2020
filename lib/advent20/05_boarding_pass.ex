@@ -31,33 +31,14 @@ defmodule Advent20.BoardingPass do
     %{row: row, column: column, seat_id: seat_id}
   end
 
+  # Turns our that binary partitioning follows the binary number system exactly
+  # we can just parse the boarding passes as binary numbers
   defp binary_partition(input) do
     input
-    |> String.codepoints()
-    |> Enum.map(&prepare_input/1)
-    |> parse_binary()
+    |> String.replace(["F", "L"], "0")
+    |> String.replace(["B", "R"], "1")
+    |> String.to_integer(2)
   end
-
-  defp prepare_input("F"), do: 0
-  defp prepare_input("L"), do: 0
-  defp prepare_input("B"), do: 1
-  defp prepare_input("R"), do: 1
-
-  @doc """
-  Parse a list of 0 and 1s into a base-10 number
-  """
-  def parse_binary(list, sum \\ 0)
-
-  def parse_binary([0 | tail], sum), do: parse_binary(tail, sum)
-
-  def parse_binary([1 | tail], sum) do
-    exp = length(tail)
-    sum = sum + :math.pow(2, exp)
-
-    parse_binary(tail, sum)
-  end
-
-  def parse_binary([], sum), do: Kernel.trunc(sum)
 
   @doc """
   B: Find own seat id
