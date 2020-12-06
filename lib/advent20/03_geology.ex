@@ -11,7 +11,7 @@ defmodule Advent20.Geology do
   end
 
   @doc """
-  Count the trees
+  Part 1: Count the trees encountered using a given slope
   """
   def count_trees(input_filename, {right, down}) do
     geology_stream(input_filename)
@@ -40,7 +40,7 @@ defmodule Advent20.Geology do
   end
 
   @doc """
-  Calculate the product of tree counts for multiple slopes
+  Part 2: Calculate the product of tree counts for multiple slopes
   """
   def multiple_slope_tree_count_product(input_filename, slopes) do
     slopes

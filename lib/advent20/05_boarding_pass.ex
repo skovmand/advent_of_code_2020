@@ -11,7 +11,7 @@ defmodule Advent20.BoardingPass do
   end
 
   @doc """
-  A: Find highest seat id on a boarding pass
+  Part 1: Find highest seat id on a boarding pass
   """
   def highest_seat_id(input_filename) do
     boarding_pass_identifier_stream(input_filename)
@@ -41,7 +41,7 @@ defmodule Advent20.BoardingPass do
   end
 
   @doc """
-  B: Find own seat id
+  Part 2: Find your own seat id
   """
   def find_own_seat_id(input_filename) do
     boarding_pass_seat_ids =

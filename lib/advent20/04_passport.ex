@@ -88,7 +88,7 @@ defmodule Advent20.Passport do
   end
 
   @doc """
-  Part 1
+  Part 1: Count passwords that have all required fields
   """
   def count_valid_passports(input_filename) do
     passport_input_stream(input_filename)
@@ -106,7 +106,7 @@ defmodule Advent20.Passport do
   end
 
   @doc """
-  Part 2. The same as Part A, but also uses the extended validation in the Ecto Schema
+  Part 2. Count passwords that have all required fields AND are valid according to the rules
   """
   def count_valid_passports_strict(input_filename) do
     passport_input_stream(input_filename)

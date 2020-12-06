@@ -13,7 +13,7 @@ defmodule Advent20.Customs do
   end
 
   @doc """
-  Count yes answers for all groups
+  Part 1: Count yes answers for all groups
   """
   def count_yes_answer_sum_for_all_groups(input_filename) do
     answer_stream(input_filename)
@@ -29,7 +29,7 @@ defmodule Advent20.Customs do
   end
 
   @doc """
-  Count the sum of yes answers where everyone in the group agrees, for all groups
+  Part 2: Count the sum of yes answers where everyone in the group agrees, for all groups
   """
   def count_yes_answer_sum_total_agreement_all_groups(input_filename) do
     answer_stream(input_filename)
