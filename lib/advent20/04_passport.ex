@@ -99,9 +99,10 @@ defmodule Advent20.Passport do
 
   defp create_passport(password_input_list) do
     password_input_list
-    |> Enum.reduce(%{}, fn input, passport ->
-      [field, value] = String.split(input, ":")
-      Map.put(passport, field, value)
+    |> Enum.into(%{}, fn input ->
+      input
+      |> String.split(":")
+      |> List.to_tuple()
     end)
   end
 
