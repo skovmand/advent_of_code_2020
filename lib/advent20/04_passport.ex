@@ -54,16 +54,9 @@ defmodule Advent20.Passport do
 
       valid? =
         case Regex.run(~r/(\d+)(cm|in)/, input, capture: :all_but_first) do
-          [height, "cm"] ->
-            int_height = String.to_integer(height)
-            int_height >= 150 and int_height <= 193
-
-          [height, "in"] ->
-            int_height = String.to_integer(height)
-            int_height >= 59 and int_height <= 76
-
-          _ ->
-            false
+          [height, "cm"] -> String.to_integer(height) in 150..193
+          [height, "in"] -> String.to_integer(height) in 59..76
+          _ -> false
         end
 
       if(not valid?, do: changeset |> add_error(field, "not valid"), else: changeset)
