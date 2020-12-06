@@ -3,10 +3,7 @@ defmodule Advent20.BoardingPassTest do
 
   alias Advent20.BoardingPass
 
-  @boarding_pass_identifiers "05_boarding_pass.txt"
-                             |> Path.expand("input_files")
-                             |> File.read!()
-                             |> String.split("\n", trim: true)
+  @input_filename Path.expand("05_boarding_pass.txt", "input_files")
 
   describe "A: Unit tests" do
     test "BFFFBBFRRR" do
@@ -23,10 +20,10 @@ defmodule Advent20.BoardingPassTest do
   end
 
   test "A: Highest seat ID on a boarding pass" do
-    assert BoardingPass.highest_seat_id(@boarding_pass_identifiers) == 832
+    assert BoardingPass.highest_seat_id(@input_filename) == 832
   end
 
   test "B: Find own seat id" do
-    assert BoardingPass.find_own_seat_id(@boarding_pass_identifiers) == 517
+    assert BoardingPass.find_own_seat_id(@input_filename) == 517
   end
 end

@@ -3,11 +3,18 @@ defmodule Advent20.BoardingPass do
   Day 5: Binary Boarding
   """
 
+  # Set up a stream of boarding pass identifiers
+  defp boarding_pass_identifier_stream(input_filename) do
+    input_filename
+    |> File.stream!()
+    |> Stream.map(&String.trim/1)
+  end
+
   @doc """
   A: Find highest seat id on a boarding pass
   """
-  def highest_seat_id(boarding_pass_identifiers) do
-    boarding_pass_identifiers
+  def highest_seat_id(input_filename) do
+    boarding_pass_identifier_stream(input_filename)
     |> Stream.map(&position_and_id/1)
     |> Stream.map(& &1.seat_id)
     |> Enum.max()
@@ -55,9 +62,9 @@ defmodule Advent20.BoardingPass do
   @doc """
   B: Find own seat id
   """
-  def find_own_seat_id(boarding_pass_identifiers) do
+  def find_own_seat_id(input_filename) do
     boarding_pass_seat_ids =
-      boarding_pass_identifiers
+      boarding_pass_identifier_stream(input_filename)
       |> Stream.map(&position_and_id/1)
       |> Stream.map(& &1.seat_id)
       |> MapSet.new()
