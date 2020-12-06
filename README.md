@@ -6,12 +6,9 @@ My solutions to [Advent of Code 2020](https://adventofcode.com/) in [Elixir](htt
 
 My goals for AoC2020:
 
-- Complete every day
 - Exercise and improve my Elixir skills
-- Solve some puzzles
-- Publish readable code
-
-I will not optimize for speed, or for lines of code.
+- Solve puzzles
+- Do it while remaining calm and enjoying the process
 
 
 ## Run the tests
