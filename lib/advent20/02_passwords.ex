@@ -4,7 +4,7 @@ defmodule Advent20.PoliciesAndPasswords do
   """
 
   @doc """
-  Part A
+  Part 1: How many passwords are valid according to their policies?
   """
   def count_valid_passwords(password_policies) do
     password_policies
@@ -33,7 +33,7 @@ defmodule Advent20.PoliciesAndPasswords do
   end
 
   @doc """
-  Part B
+  Part 2: How many passwords are valid according to the new interpretation of the policies?
   """
   def count_valid_passwords_with_2nd_policy(password_policies) do
     password_policies
