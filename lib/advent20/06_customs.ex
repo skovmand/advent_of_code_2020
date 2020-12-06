@@ -3,11 +3,22 @@ defmodule Advent20.Customs do
   Day 6: Custom Customs
   """
 
+  @input_filename "06_customs.txt"
+
+  defp answer_stream() do
+    @input_filename
+    |> Path.expand("input_files")
+    |> File.stream!()
+    |> Stream.map(&String.trim/1)
+    |> Stream.chunk_by(&(&1 == ""))
+    |> Stream.reject(&(&1 == [""]))
+  end
+
   @doc """
   Count yes answers for all groups
   """
-  def count_yes_answer_sum_for_all_groups(group_answers) do
-    group_answers
+  def count_yes_answer_sum_for_all_groups() do
+    answer_stream()
     |> Stream.map(&count_yes_answer_sum/1)
     |> Enum.sum()
   end
@@ -22,8 +33,8 @@ defmodule Advent20.Customs do
   @doc """
   Count the sum of yes answers where everyone in the group agrees, for all groups
   """
-  def count_yes_answer_sum_total_agreement_all_groups(group_answers) do
-    group_answers
+  def count_yes_answer_sum_total_agreement_all_groups() do
+    answer_stream()
     |> Stream.map(&count_agreeing_answers/1)
     |> Enum.sum()
   end
