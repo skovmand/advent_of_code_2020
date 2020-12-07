@@ -50,4 +50,21 @@ defmodule Advent20.Bags do
       |> Enum.find(false, &contains_shiny_gold_bag?(&1, all_bags))
     end
   end
+
+  @doc """
+  2: How many individual bags are required inside your single shiny gold bag?
+  """
+  def bags_inside_a_shiny_gold_bag(bag_input) do
+    all_bags = parse_bags(bag_input)
+    shiny_gold_bag_deps = Map.fetch!(all_bags, "shiny gold")
+
+    count_bags(shiny_gold_bag_deps, all_bags)
+  end
+
+  defp count_bags([], _all_bags), do: 0
+
+  defp count_bags([[count, title] | tail], all_bags) do
+    next_dep = Map.fetch!(all_bags, title)
+    count + count * count_bags(next_dep, all_bags) + count_bags(tail, all_bags)
+  end
 end

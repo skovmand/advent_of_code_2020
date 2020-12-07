@@ -5,8 +5,8 @@ defmodule Advent20.BagsTest do
 
   @input_filename "07_bags.txt" |> Path.expand("input_files") |> File.read!()
 
-  describe "A" do
-    test "Unit test" do
+  describe "1" do
+    test "unit test" do
       input = """
       light red bags contain 1 bright white bag, 2 muted yellow bags.
       dark orange bags contain 3 bright white bags, 4 muted yellow bags.
@@ -22,12 +22,28 @@ defmodule Advent20.BagsTest do
       assert Bags.bags_eventually_containing_one_shiny_gold_bag(input) == 4
     end
 
-    test "A: it sums unique group yes answers" do
+    test "it sums bags eventually containing one shiny gold bag" do
       assert Bags.bags_eventually_containing_one_shiny_gold_bag(@input_filename) == 248
     end
   end
 
-  @tag :skip
-  test "B: ?" do
+  describe "2" do
+    test "unit test" do
+      input = """
+      shiny gold bags contain 2 dark red bags.
+      dark red bags contain 2 dark orange bags.
+      dark orange bags contain 2 dark yellow bags.
+      dark yellow bags contain 2 dark green bags.
+      dark green bags contain 2 dark blue bags.
+      dark blue bags contain 2 dark violet bags.
+      dark violet bags contain no other bags.
+      """
+
+      assert Bags.bags_inside_a_shiny_gold_bag(input) == 126
+    end
+
+    test "count bags inside a shiny gold bag" do
+      assert Bags.bags_inside_a_shiny_gold_bag(@input_filename) == 57281
+    end
   end
 end
