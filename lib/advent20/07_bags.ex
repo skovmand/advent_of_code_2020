@@ -6,9 +6,10 @@ defmodule Advent20.Bags do
   # Parse the bag input
   defp parse_bags(bag_input) do
     bag_input
-    |> String.split(".\n", trim: true)
-    |> Enum.map(&String.replace(&1, ~r/ bags?/, ""))
-    |> Enum.map(&String.split(&1, " contain "))
+    |> String.split("\n", trim: true)
+    |> Stream.map(&String.replace(&1, ~r/ bags?/, ""))
+    |> Stream.map(&String.replace(&1, ~r/\.$/, ""))
+    |> Stream.map(&String.split(&1, " contain "))
     |> Enum.into(%{}, fn [title, bags_contained] -> {title, parse_bags_contained(bags_contained)} end)
   end
 
