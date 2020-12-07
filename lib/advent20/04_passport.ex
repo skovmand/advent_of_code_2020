@@ -21,14 +21,14 @@ defmodule Advent20.Passport do
     import Ecto.Changeset
 
     embedded_schema do
-      field(:byr, :integer)
-      field(:iyr, :integer)
-      field(:eyr, :integer)
-      field(:hgt, :string)
-      field(:hcl, :string)
-      field(:ecl, :string)
-      field(:pid, :string)
-      field(:cid, :string)
+      field :byr, :integer
+      field :iyr, :integer
+      field :eyr, :integer
+      field :hgt, :string
+      field :hcl, :string
+      field :ecl, :string
+      field :pid, :string
+      field :cid, :string
     end
 
     def changeset(params) do
