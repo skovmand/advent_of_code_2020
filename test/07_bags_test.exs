@@ -3,7 +3,7 @@ defmodule Advent20.BagsTest do
 
   alias Advent20.Bags
 
-  @input_filename "07_bags.txt" |> Path.expand("input_files") |> File.read!()
+  @input "07_bags.txt" |> Path.expand("input_files") |> File.read!()
 
   describe "1" do
     test "unit test" do
@@ -23,7 +23,7 @@ defmodule Advent20.BagsTest do
     end
 
     test "it sums bags eventually containing one shiny gold bag" do
-      assert Bags.bags_eventually_containing_one_shiny_gold_bag(@input_filename) == 248
+      assert Bags.bags_eventually_containing_one_shiny_gold_bag(@input) == 248
     end
   end
 
@@ -43,7 +43,7 @@ defmodule Advent20.BagsTest do
     end
 
     test "count bags inside a shiny gold bag" do
-      assert Bags.bags_inside_a_shiny_gold_bag(@input_filename) == 57281
+      assert Bags.bags_inside_a_shiny_gold_bag(@input) == 57281
     end
   end
 end
