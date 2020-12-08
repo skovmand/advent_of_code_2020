@@ -21,6 +21,7 @@ defmodule Advent20.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:benchee, "~> 1.0"},
       {:ecto, "~> 3.5"}
     ]
   end
