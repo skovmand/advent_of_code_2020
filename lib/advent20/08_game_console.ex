@@ -55,8 +55,8 @@ defmodule Advent20.GameConsole do
     end)
     |> Stream.map(fn input -> run_program(input, state, MapSet.new()) end)
     |> Enum.find_value(fn
-        {:termination, acc, ^final_instruction} -> acc
-        {:loop, _, _} -> false
+      {:termination, acc, ^final_instruction} -> acc
+      {:loop, _, _} -> false
     end)
   end
 
