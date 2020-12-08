@@ -43,5 +43,9 @@ defmodule Advent20.GameConsoleTest do
 
       assert GameConsole.acc_value_at_program_termination(input) == 8
     end
+
+    test "finds the value where the program terminates" do
+      assert GameConsole.acc_value_at_program_termination(@input) == 1023
+    end
   end
 end
