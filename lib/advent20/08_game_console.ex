@@ -46,22 +46,17 @@ defmodule Advent20.GameConsole do
 
     # Generate all alternate versions of the program, find the one that terminates
     trace
-    |> alternate_versions(parsed_input)
-    |> Enum.find_value(fn input ->
-      case run_program(input, state, MapSet.new()) do
-        {:termination, acc, ^final_instruction} -> acc
-        {:loop, _, _} -> false
-      end
-    end)
-  end
-
-  defp alternate_versions(trace, input) do
-    Enum.flat_map(trace, fn pointer ->
-      case Map.fetch!(input, pointer) do
-        {"jmp", value} -> [Map.put(input, pointer, {"nop", value})]
-        {"nop", value} -> [Map.put(input, pointer, {"jmp", value})]
+    |> Stream.flat_map(fn pointer ->
+      case Map.fetch!(parsed_input, pointer) do
+        {"jmp", value} -> [Map.put(parsed_input, pointer, {"nop", value})]
+        {"nop", value} -> [Map.put(parsed_input, pointer, {"jmp", value})]
         {"acc", _value} -> []
       end
+    end)
+    |> Stream.map(fn input -> run_program(input, state, MapSet.new()) end)
+    |> Enum.find_value(fn
+        {:termination, acc, ^final_instruction} -> acc
+        {:loop, _, _} -> false
     end)
   end
 
