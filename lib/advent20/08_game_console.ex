@@ -3,18 +3,6 @@ defmodule Advent20.GameConsole do
   Day 8: Handheld Halting
   """
 
-  @doc """
-  Run your copy of the boot code. Immediately before any instruction
-  is executed a second time, what value is in the accumulator?
-  """
-  def acc_value_after_first_loop(input) do
-    state = %{pointer: 0, acc: 0}
-
-    input
-    |> parse_input()
-    |> run_program(state, MapSet.new())
-  end
-
   defp parse_input(input) do
     input
     |> String.split("\n", trim: true)
@@ -23,6 +11,18 @@ defmodule Advent20.GameConsole do
     |> Stream.with_index()
     |> Stream.map(fn {value, index} -> {index, value} end)
     |> Enum.into(%{})
+  end
+
+  @doc """
+  1: Run your copy of the boot code. Immediately before any instruction
+     is executed a second time, what value is in the accumulator?
+  """
+  def acc_value_after_first_loop(input) do
+    state = %{pointer: 0, acc: 0}
+
+    input
+    |> parse_input()
+    |> run_program(state, MapSet.new())
   end
 
   defp run_program(input, state, executed) do

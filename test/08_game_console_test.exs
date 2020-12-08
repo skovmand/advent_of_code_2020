@@ -27,7 +27,21 @@ defmodule Advent20.GameConsoleTest do
     end
   end
 
-  @tag :skip
   describe "2" do
+    test "unit test" do
+      input = """
+      nop +0
+      acc +1
+      jmp +4
+      acc +3
+      jmp -3
+      acc -99
+      acc +1
+      jmp -4
+      acc +6
+      """
+
+      assert GameConsole.acc_value_at_program_termination(input) == 8
+    end
   end
 end
