@@ -41,4 +41,36 @@ defmodule Advent20.Encoding do
       _ -> false
     end
   end
+
+  @doc """
+  Part 2: What is the encryption weakness in your XMAS-encrypted list of numbers?
+  """
+  def contigous_set_for_number(input, invalid_number) do
+    numbers = parse(input)
+
+    Stream.iterate(0, &(&1 + 1))
+    |> Stream.map(&try_find_sum(&1, numbers, invalid_number))
+    |> Enum.find(& &1)
+  end
+
+  defp try_find_sum(index, numbers, looking_for) do
+    prepared_numbers = Enum.drop(numbers, index)
+
+    Enum.reduce_while(prepared_numbers, %{sum: 0, contigous_numbers: []}, fn number, acc ->
+      new_sum = number + acc.sum
+
+      cond do
+        new_sum > looking_for ->
+          {:halt, false}
+
+        new_sum < looking_for ->
+          new_acc = %{sum: new_sum, contigous_numbers: [number | acc.contigous_numbers]}
+          {:cont, new_acc}
+
+        new_sum == looking_for ->
+          all_contigous_numbers = [number | acc.contigous_numbers]
+          {:halt, Enum.max(all_contigous_numbers) + Enum.min(all_contigous_numbers)}
+      end
+    end)
+  end
 end
