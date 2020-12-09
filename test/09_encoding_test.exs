@@ -34,7 +34,7 @@ defmodule Advent20.EncodingTest do
     end
 
     test "puzzle answer" do
-      assert Encoding.first_failing_number(@input, 25) == 18272118
+      assert Encoding.first_failing_number(@input, 25) == 18_272_118
     end
   end
 
@@ -67,7 +67,7 @@ defmodule Advent20.EncodingTest do
     end
 
     test "puzzle answer" do
-      assert Encoding.contigous_set_for_number(@input, 18272118) == 2186361
+      assert Encoding.contigous_set_for_number(@input, 18_272_118) == 2_186_361
     end
   end
 end
