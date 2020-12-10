@@ -25,7 +25,7 @@ defmodule Advent20.Bags do
   end
 
   @doc """
-  1: How many bag colors can eventually contain at least one shiny gold bag?
+  Part 1: How many bag colors can eventually contain at least one shiny gold bag?
   """
   def bags_eventually_containing_one_shiny_gold_bag(bag_input) do
     # We just remove the count from the contained bags for simplicity
@@ -53,7 +53,7 @@ defmodule Advent20.Bags do
   end
 
   @doc """
-  2: How many individual bags are required inside your single shiny gold bag?
+  Part 2: How many individual bags are required inside your single shiny gold bag?
   """
   def bags_inside_a_shiny_gold_bag(bag_input) do
     all_bags = parse_bags(bag_input)

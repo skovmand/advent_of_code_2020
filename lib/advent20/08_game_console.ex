@@ -14,8 +14,8 @@ defmodule Advent20.GameConsole do
   end
 
   @doc """
-  1: Run your copy of the boot code. Immediately before any instruction
-     is executed a second time, what value is in the accumulator?
+  Part 1: Run your copy of the boot code. Immediately before any instruction
+          is executed a second time, what value is in the accumulator?
   """
   def acc_value_after_first_loop(input) do
     state = %{pointer: 0, acc: 0}
@@ -29,7 +29,7 @@ defmodule Advent20.GameConsole do
   end
 
   @doc """
-  2: What is the value of the accumulator after the program terminates?
+  Part 2: What is the value of the accumulator after the program terminates?
   """
   def acc_value_at_program_termination(input) do
     state = %{pointer: 0, acc: 0}

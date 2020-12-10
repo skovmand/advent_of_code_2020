@@ -22,7 +22,7 @@ defmodule Advent20.GameConsoleTest do
       assert GameConsole.acc_value_after_first_loop(@unit_test_input) == 5
     end
 
-    test "finds value after first loop" do
+    test "puzzle answer: finds value after first loop" do
       assert GameConsole.acc_value_after_first_loop(@input) == 1200
     end
   end
@@ -32,7 +32,7 @@ defmodule Advent20.GameConsoleTest do
       assert GameConsole.acc_value_at_program_termination(@unit_test_input) == 8
     end
 
-    test "finds the value where the program terminates" do
+    test "puzzle answer: finds the value where the program terminates" do
       assert GameConsole.acc_value_at_program_termination(@input) == 1023
     end
   end

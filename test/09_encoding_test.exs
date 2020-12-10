@@ -28,22 +28,22 @@ defmodule Advent20.EncodingTest do
   576
   """
 
-  describe "part 1" do
+  describe "1" do
     test "unit test" do
       assert Encoding.first_failing_number(@unit_test_input, 5) == 127
     end
 
-    test "puzzle answer" do
+    test "puzzle answer: first number not summed by 2 numbers in preamble" do
       assert Encoding.first_failing_number(@input, 25) == 18_272_118
     end
   end
 
-  describe "part 2" do
+  describe "2" do
     test "unit test" do
       assert Encoding.contigous_set_for_number(@unit_test_input, 127) == 62
     end
 
-    test "puzzle answer" do
+    test "puzzle answer: smallest and largest contiguous number sum" do
       assert Encoding.contigous_set_for_number(@input, 18_272_118) == 2_186_361
     end
   end

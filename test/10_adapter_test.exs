@@ -39,22 +39,22 @@ defmodule Advent20.AdapterTest do
   3
   """
 
-  describe "part 1" do
+  describe "1" do
     test "unit test" do
       assert Adapter.jolt_differences(@unit_test_input) == 220
     end
 
-    test "puzzle answer" do
+    test "puzzle answer: product of 1 and 3 jolt differences" do
       assert Adapter.jolt_differences(@input) == 1917
     end
   end
 
-  describe "part 2" do
+  describe "2" do
     test "unit test" do
       assert Adapter.adapter_combinations(@unit_test_input) == 19208
     end
 
-    test "puzzle answer" do
+    test "puzzle answer: count possible paths" do
       assert Adapter.adapter_combinations(@input) == 113_387_824_750_592
     end
   end

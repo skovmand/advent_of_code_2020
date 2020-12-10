@@ -7,11 +7,11 @@ defmodule Advent20.PoliciesAndPasswordsTest do
                     |> Path.expand("input_files")
                     |> File.stream!()
 
-  test "A: Counts valid passwords" do
+  test "1: Counts valid passwords" do
     assert PoliciesAndPasswords.count_valid_passwords(@passwords_stream) == 469
   end
 
-  test "B: Counts valid passwords with the correct policy" do
+  test "2: Counts valid passwords with the correct policy" do
     assert PoliciesAndPasswords.count_valid_passwords_with_2nd_policy(@passwords_stream) == 267
   end
 end
