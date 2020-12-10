@@ -27,4 +27,26 @@ defmodule Advent20.Adapter do
 
   # Sum up the frequencies, and add the computer and the outlet
   defp product(%{1 => ones, 3 => threes}), do: ones * threes
+
+  @doc """
+  What is the total number of distinct ways you can arrange the 
+  adapters to connect the charging outlet to your device?
+  """
+  def adapter_combinations(input) do
+    input
+    |> parse()
+    |> combinations()
+    |> Enum.max_by(fn {key, _value} -> key end)
+    |> elem(1)
+  end
+
+  # Count unique combinations of getting from outlet to computer
+  defp combinations(joltages) do
+    joltages
+    |> Enum.drop(1)
+    |> Enum.reduce(%{0 => 1}, fn joltage, acc ->
+      sum = Map.get(acc, joltage - 1, 0) + Map.get(acc, joltage - 2, 0) + Map.get(acc, joltage - 3, 0)
+      Map.put(acc, joltage, sum)
+    end)
+  end
 end
