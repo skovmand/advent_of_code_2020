@@ -22,10 +22,8 @@ defmodule Advent20.Adapter do
     |> Enum.chunk_every(2, 1, :discard)
     |> Enum.reduce([], fn [low, high], acc -> [high - low | acc] end)
     |> Enum.frequencies()
-    |> product()
+    |> (fn %{1 => ones, 3 => threes} -> ones * threes end).()
   end
-
-  defp product(%{1 => ones, 3 => threes}), do: ones * threes
 
   @doc """
   Part 2: What is the total number of distinct ways you can arrange the
