@@ -32,13 +32,25 @@ defmodule Advent20.Adapter do
   def adapter_combinations(input) do
     input
     |> parse()
-    |> combinations()
+    |> unique_paths()
     |> Enum.max_by(fn {key, _value} -> key end)
     |> elem(1)
   end
 
-  # Count unique combinations of getting from outlet to computer
-  defp combinations(joltages) do
+  # Count unique paths from the outlet to the computer.
+  #
+  # Say we have the joltages 0, 1, 2, 3, 6 (where 0 is the outlet and 6 is the computer).
+  # The basic idea is that there is 1 way to get to 0 (this is our initial state).
+  # Then, counting upwards, there is also only 1 way to get to 1 (0->1),
+  # but there are 2 ways to get to 2 - either `0->1->2` or `0->2`.
+  # Let's call the count of ways to get to e.g. joltage 2 `p(2)`. Then `p(2) = p(0) + p(1) = 2`.
+  # Then, there are 4 ways to get to 3, `p(3) = p(0) + p(1) + p(2) = 4` and finally
+  # `p(6) = p(5) + p(4) + p(3) = 4`. Note that there are 0 to get to 5 or 4, since they don't exist.
+  #
+  # This way we we can count unique paths by just knowing the initial state, that there is one path to 0
+  #
+  # Algorithm source: https://www.coursera.org/lecture/discrete-math-and-analyzing-social-graphs/recursive-counting-number-of-paths-bi8b1
+  defp unique_paths(joltages) do
     joltages
     |> Enum.drop(1)
     |> Enum.reduce(%{0 => 1}, fn joltage, acc ->
