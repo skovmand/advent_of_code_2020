@@ -3,7 +3,7 @@ defmodule Advent20.AdapterTest do
 
   alias Advent20.Adapter
 
-  @input Path.expand("10_adapter.txt", "input_files") |> File.read!()
+  @input "10_adapter.txt" |> Path.expand("input_files") |> File.read!()
 
   @unit_test_input """
   28

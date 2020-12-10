@@ -25,11 +25,10 @@ defmodule Advent20.Adapter do
     |> product()
   end
 
-  # Sum up the frequencies, and add the computer and the outlet
   defp product(%{1 => ones, 3 => threes}), do: ones * threes
 
   @doc """
-  What is the total number of distinct ways you can arrange the 
+  Part 2: What is the total number of distinct ways you can arrange the
   adapters to connect the charging outlet to your device?
   """
   def adapter_combinations(input) do
