@@ -1,5 +1,5 @@
 defmodule Advent20.SeatingSystemTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   alias Advent20.SeatingSystem
 
