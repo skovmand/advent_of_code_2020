@@ -17,13 +17,11 @@ defmodule Advent20.SeatingSystem do
 
     max_x = seats[0] |> Map.keys() |> Enum.max()
     max_y = seats |> Map.keys() |> Enum.max()
-    coordinates = for x <- 0..max_x, y <- 0..max_y, seat_state(seats, {x, y}) != ".", do: {x, y}
 
     %{
       seats: seats,
       max_x: max_x,
-      max_y: max_y,
-      coordinates: coordinates
+      max_y: max_y
     }
   end
 
@@ -54,23 +52,32 @@ defmodule Advent20.SeatingSystem do
   # Apply one round of seating rules, returning the updated state
   defp apply_seating_rules(seat_data) do
     applied_seats =
-      seat_data.coordinates
-      |> Enum.reduce(seat_data.seats, fn coord, acc ->
-        seat_state = seat_state(seat_data.seats, coord)
-        occupied_seat_count = occupied_adjacent_seat_count(seat_data.seats, coord, seat_data.max_x, seat_data.max_y)
-        apply_seating_rule(acc, coord, seat_state, occupied_seat_count)
+      seat_data.seats
+      |> Stream.map(fn {y, row} ->
+        updated_row =
+          row
+          |> Stream.map(fn
+            {x, "."} ->
+              {x, "."}
+
+            {x, seat_state} ->
+              occupied_seat_count =
+                occupied_adjacent_seat_count(seat_data.seats, {x, y}, seat_data.max_x, seat_data.max_y)
+
+              case {occupied_seat_count, seat_state} do
+                {0, "L"} -> {x, "#"}
+                {count, "#"} when count >= 4 -> {x, "L"}
+                {_, letter} -> {x, letter}
+              end
+          end)
+          |> Enum.into(%{}, & &1)
+
+        {y, updated_row}
       end)
+      |> Enum.into(%{}, & &1)
 
     %{seat_data | seats: applied_seats}
   end
-
-  defp apply_seating_rule(seats, coord, "L", 0),
-    do: update_seats(seats, coord, "#")
-
-  defp apply_seating_rule(seats, coord, "#", occupied_seat_count) when occupied_seat_count >= 4,
-    do: update_seats(seats, coord, "L")
-
-  defp apply_seating_rule(seats, _, _, _), do: seats
 
   defp occupied_adjacent_seat_count(seats, coord, max_x, max_y) do
     coord
@@ -80,10 +87,6 @@ defmodule Advent20.SeatingSystem do
   end
 
   def seat_state(seats, {x, y}), do: seats |> Map.fetch!(y) |> Map.fetch!(x)
-
-  def update_seats(seats, {x, y}, seat_state) do
-    seats |> Map.update!(y, fn row -> Map.update!(row, x, fn _ -> seat_state end) end)
-  end
 
   # Get the adjecent seats from a given position
   def adjacent_seats_coords({seat_x, seat_y}, max_x, max_y) do
