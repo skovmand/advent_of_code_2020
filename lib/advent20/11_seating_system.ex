@@ -4,9 +4,27 @@ defmodule Advent20.SeatingSystem do
   """
 
   def parse(input) do
-    input
-    |> String.split("\n", trim: true)
-    |> Enum.map(&String.codepoints/1)
+    seats =
+      input
+      |> String.split("\n", trim: true)
+      |> Enum.map(fn line ->
+        String.codepoints(line)
+        |> Enum.with_index()
+        |> Enum.into(%{}, fn {codepoints, index} -> {index, codepoints} end)
+      end)
+      |> Enum.with_index()
+      |> Enum.into(%{}, fn {lines, index} -> {index, lines} end)
+
+    max_x = seats[0] |> Map.keys() |> Enum.max()
+    max_y = seats |> Map.keys() |> Enum.max()
+    coordinates = for x <- 0..max_x, y <- 0..max_y, seat_state(seats, {x, y}) != ".", do: {x, y}
+
+    %{
+      seats: seats,
+      max_x: max_x,
+      max_y: max_y,
+      coordinates: coordinates
+    }
   end
 
   @doc """
@@ -14,73 +32,61 @@ defmodule Advent20.SeatingSystem do
           until no seats change state. How many seats end up occupied?
   """
   def simulate_seating_area(input) do
-    seating_area = parse(input)
-    coordinates = coordinates(seating_area)
+    seat_data = parse(input)
 
-    seating_area
-    |> Stream.unfold(fn seating_area -> {seating_area, apply_seating_rules(seating_area, coordinates)} end)
+    seat_data
+    |> Stream.unfold(&{&1, apply_seating_rules(&1)})
     |> Enum.reduce_while(nil, fn
-      seating_area, seating_area -> {:halt, seating_area}
-      seating_area, _ -> {:cont, seating_area}
+      %{seats: seats}, %{seats: seats} -> {:halt, seats}
+      seat_data, _ -> {:cont, seat_data}
     end)
     |> count_occupied_seats()
   end
 
-  defp coordinates(seating_area) do
-    max_x = seating_area |> Enum.at(0) |> length() |> Kernel.-(1)
-    max_y = seating_area |> length() |> Kernel.-(1)
-    for x <- 0..max_x, y <- 0..max_y, do: {x, y}
-  end
-
-  defp count_occupied_seats(state) do
-    state |> Enum.map(fn list -> Enum.count(list, fn c -> c == "#" end) end) |> Enum.sum()
+  defp count_occupied_seats(seats) do
+    seats
+    |> Map.values()
+    |> Enum.map(&Map.values/1)
+    |> Enum.map(fn line -> Enum.count(line, &(&1 == "#")) end)
+    |> Enum.sum()
   end
 
   # Apply one round of seating rules, returning the updated state
-  defp apply_seating_rules(original_state, coordinates) do
-    coordinates
-    |> Enum.reduce(original_state, fn coord, state ->
-      seat_state = seat_state(original_state, coord)
-      occupied_seat_count = occupied_adjacent_seat_count(original_state, coord)
-      apply_seating_rule(state, coord, seat_state, occupied_seat_count)
-    end)
+  defp apply_seating_rules(seat_data) do
+    applied_seats =
+      seat_data.coordinates
+      |> Enum.reduce(seat_data.seats, fn coord, acc ->
+        seat_state = seat_state(seat_data.seats, coord)
+        occupied_seat_count = occupied_adjacent_seat_count(seat_data.seats, coord, seat_data.max_x, seat_data.max_y)
+        apply_seating_rule(acc, coord, seat_state, occupied_seat_count)
+      end)
+
+    %{seat_data | seats: applied_seats}
   end
 
-  defp apply_seating_rule(state, coord, "L", occupied_seat_count) when occupied_seat_count == 0,
-    do: update_state(state, coord, "#")
+  defp apply_seating_rule(seats, coord, "L", 0),
+    do: update_seats(seats, coord, "#")
 
-  defp apply_seating_rule(state, coord, "#", occupied_seat_count) when occupied_seat_count >= 4,
-    do: update_state(state, coord, "L")
+  defp apply_seating_rule(seats, coord, "#", occupied_seat_count) when occupied_seat_count >= 4,
+    do: update_seats(seats, coord, "L")
 
-  defp apply_seating_rule(state, _, _, _), do: state
+  defp apply_seating_rule(seats, _, _, _), do: seats
 
-  defp occupied_adjacent_seat_count(state, coord) do
-    state
-    |> adjacent_seats_coords(coord)
-    |> Enum.map(&seat_state(state, &1))
+  defp occupied_adjacent_seat_count(seats, coord, max_x, max_y) do
+    coord
+    |> adjacent_seats_coords(max_x, max_y)
+    |> Enum.map(&seat_state(seats, &1))
     |> Enum.count(&(&1 == "#"))
   end
 
-  # Get the state of the seat at x, y as either :empty, :occupied or :floor
-  # x is the horizontal position from the left starting at 0,
-  # y is the vertical position from the top starting at 0
-  def seat_state(state, {x, y}) do
-    state |> Enum.at(y) |> Enum.at(x)
-  end
+  def seat_state(seats, {x, y}), do: seats |> Map.fetch!(y) |> Map.fetch!(x)
 
-  # Update the seat state at {x, y}
-  def update_state(state, {x, y}, seat_state) when seat_state in ["L", "#"] do
-    state
-    |> List.update_at(y, fn row ->
-      List.update_at(row, x, fn _ -> seat_state end)
-    end)
+  def update_seats(seats, {x, y}, seat_state) do
+    seats |> Map.update!(y, fn row -> Map.update!(row, x, fn _ -> seat_state end) end)
   end
 
   # Get the adjecent seats from a given position
-  def adjacent_seats_coords(state, {seat_x, seat_y}) do
-    max_x = state |> Enum.at(0) |> length() |> Kernel.-(1)
-    max_y = state |> length() |> Kernel.-(1)
-
+  def adjacent_seats_coords({seat_x, seat_y}, max_x, max_y) do
     for x <- (seat_x - 1)..(seat_x + 1),
         y <- (seat_y - 1)..(seat_y + 1),
         x >= 0,
