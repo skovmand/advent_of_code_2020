@@ -7,10 +7,16 @@ defmodule Advent20.SeatingSystem do
     seats =
       input
       |> String.split("\n", trim: true)
-      |> Enum.map(&String.codepoints/1)
+      |> Enum.map(fn line ->
+        String.codepoints(line)
+        |> Enum.with_index()
+        |> Enum.into(%{}, fn {codepoints, index} -> {index, codepoints} end)
+      end)
+      |> Enum.with_index()
+      |> Enum.into(%{}, fn {lines, index} -> {index, lines} end)
 
-    max_x = seats |> List.first() |> length() |> Kernel.-(1)
-    max_y = length(seats) - 1
+    max_x = seats[0] |> Map.keys() |> Enum.max()
+    max_y = seats |> Map.keys() |> Enum.max()
 
     %{
       seats: seats,
@@ -37,6 +43,8 @@ defmodule Advent20.SeatingSystem do
 
   defp count_occupied_seats(seats) do
     seats
+    |> Map.values()
+    |> Enum.map(&Map.values/1)
     |> Enum.map(fn line -> Enum.count(line, &(&1 == "#")) end)
     |> Enum.sum()
   end
@@ -45,27 +53,28 @@ defmodule Advent20.SeatingSystem do
   defp apply_seating_rules(seat_data) do
     applied_seats =
       seat_data.seats
-      |> Stream.with_index()
-      |> Stream.map(fn {row, y} ->
-        row
-        |> Stream.with_index()
-        |> Stream.map(fn
-          {".", _} ->
-            "."
+      |> Stream.map(fn {y, row} ->
+        updated_row =
+          row
+          |> Stream.map(fn
+            {x, "."} ->
+              {x, "."}
 
-          {seat_state, x} ->
-            occupied_seat_count =
-              occupied_adjacent_seat_count(seat_data.seats, {x, y}, seat_data.max_x, seat_data.max_y)
+            {x, seat_state} ->
+              occupied_seat_count =
+                occupied_adjacent_seat_count(seat_data.seats, {x, y}, seat_data.max_x, seat_data.max_y)
 
-            case {occupied_seat_count, seat_state} do
-              {0, "L"} -> "#"
-              {count, "#"} when count >= 4 -> "L"
-              {_, letter} -> letter
-            end
-        end)
-        |> Enum.map(& &1)
+              case {occupied_seat_count, seat_state} do
+                {0, "L"} -> {x, "#"}
+                {count, "#"} when count >= 4 -> {x, "L"}
+                {_, letter} -> {x, letter}
+              end
+          end)
+          |> Enum.into(%{}, & &1)
+
+        {y, updated_row}
       end)
-      |> Enum.map(& &1)
+      |> Enum.into(%{}, & &1)
 
     %{seat_data | seats: applied_seats}
   end
@@ -77,7 +86,7 @@ defmodule Advent20.SeatingSystem do
     |> Enum.count(&(&1 == "#"))
   end
 
-  def seat_state(seats, {x, y}), do: seats |> Enum.at(y) |> Enum.at(x)
+  def seat_state(seats, {x, y}), do: seats |> Map.fetch!(y) |> Map.fetch!(x)
 
   # Get the adjecent seats from a given position
   def adjacent_seats_coords({seat_x, seat_y}, max_x, max_y) do
