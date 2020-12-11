@@ -20,11 +20,11 @@ defmodule Advent20.SeatingSystemTest do
 
   describe "1" do
     test "unit test" do
-      assert SeatingSystem.simulate_seating_area(@unit_test_input) == 37
+      assert SeatingSystem.part_1(@unit_test_input) == 37
     end
 
     test "puzzle answer: how many seats end up occupied?" do
-      assert SeatingSystem.simulate_seating_area(@input) == 2275
+      assert SeatingSystem.part_1(@input) == 2275
     end
   end
 end

@@ -15,13 +15,10 @@ defmodule Advent20.SeatingSystem do
       |> Enum.with_index()
       |> Enum.into(%{}, fn {lines, index} -> {index, lines} end)
 
-    max_x = seats[0] |> Map.keys() |> Enum.max()
-    max_y = seats |> Map.keys() |> Enum.max()
-
     %{
       seats: seats,
-      max_x: max_x,
-      max_y: max_y
+      max_x: seats[0] |> Map.keys() |> Enum.max(),
+      max_y: seats |> Map.keys() |> Enum.max()
     }
   end
 
@@ -29,11 +26,15 @@ defmodule Advent20.SeatingSystem do
   Part 1: Simulate your seating area by applying the seating rules repeatedly
           until no seats change state. How many seats end up occupied?
   """
-  def simulate_seating_area(input) do
-    seat_data = parse(input)
+  def part_1(input) do
+    input
+    |> parse()
+    |> simulate_seating_area(&occupied_adjacent_seat_count/4, 4)
+  end
 
+  def simulate_seating_area(seat_data, seat_count_fn, occupied_limit) do
     seat_data
-    |> Stream.unfold(&{&1, apply_seating_rules(&1)})
+    |> Stream.unfold(&{&1, apply_seating_rules(&1, seat_count_fn, occupied_limit)})
     |> Enum.reduce_while(nil, fn
       %{seats: seats}, %{seats: seats} -> {:halt, seats}
       seat_data, _ -> {:cont, seat_data}
@@ -50,31 +51,29 @@ defmodule Advent20.SeatingSystem do
   end
 
   # Apply one round of seating rules, returning the updated state
-  defp apply_seating_rules(seat_data) do
+  defp apply_seating_rules(seat_data, seat_count_fn, occupied_limit) do
     applied_seats =
       seat_data.seats
-      |> Stream.map(fn {y, row} ->
+      |> Enum.into(%{}, fn {y, row} ->
         updated_row =
           row
-          |> Stream.map(fn
+          |> Enum.into(%{}, fn
             {x, "."} ->
               {x, "."}
 
             {x, seat_state} ->
               occupied_seat_count =
-                occupied_adjacent_seat_count(seat_data.seats, {x, y}, seat_data.max_x, seat_data.max_y)
+                seat_count_fn.(seat_data.seats, {x, y}, seat_data.max_x, seat_data.max_y)
 
               case {occupied_seat_count, seat_state} do
                 {0, "L"} -> {x, "#"}
-                {count, "#"} when count >= 4 -> {x, "L"}
+                {count, "#"} when count >= occupied_limit -> {x, "L"}
                 {_, letter} -> {x, letter}
               end
           end)
-          |> Enum.into(%{}, & &1)
 
         {y, updated_row}
       end)
-      |> Enum.into(%{}, & &1)
 
     %{seat_data | seats: applied_seats}
   end
