@@ -32,6 +32,16 @@ defmodule Advent20.SeatingSystem do
     |> simulate_seating_area(&occupied_adjacent_seat_count/4, 4)
   end
 
+  @doc """
+  Part 2: Given the new visibility method and the rule change for occupied seats becoming empty,
+          once equilibrium is reached, how many seats end up occupied?
+  """
+  def part_2(input) do
+    input
+    |> parse()
+    |> simulate_seating_area(&direct_line_seat_count/4, 5)
+  end
+
   def simulate_seating_area(seat_data, seat_count_fn, occupied_limit) do
     seat_data
     |> Stream.unfold(&{&1, apply_seating_rules(&1, seat_count_fn, occupied_limit)})
@@ -62,8 +72,7 @@ defmodule Advent20.SeatingSystem do
               {x, "."}
 
             {x, seat_state} ->
-              occupied_seat_count =
-                seat_count_fn.(seat_data.seats, {x, y}, seat_data.max_x, seat_data.max_y)
+              occupied_seat_count = seat_count_fn.(seat_data.seats, {x, y}, seat_data.max_x, seat_data.max_y)
 
               case {occupied_seat_count, seat_state} do
                 {0, "L"} -> {x, "#"}
@@ -83,6 +92,38 @@ defmodule Advent20.SeatingSystem do
     |> adjacent_seats_coords(max_x, max_y)
     |> Enum.map(&seat_state(seats, &1))
     |> Enum.count(&(&1 == "#"))
+  end
+
+  defp direct_line_seat_count(seats, coord, max_x, max_y) do
+    eight_direction_fns()
+    |> Enum.map(fn number_fn ->
+      Stream.iterate(coord, number_fn)
+      |> Enum.take_while(fn {x, y} -> x >= 0 and y >= 0 and x <= max_x and y <= max_y end)
+      |> Enum.drop(1)
+      |> Enum.find_value(fn coord ->
+        seat_state = seat_state(seats, coord)
+        if seat_state in ["L", "#"], do: seat_state, else: nil
+      end)
+      |> case do
+        "#" -> "#"
+        _ -> nil
+      end
+    end)
+    |> Enum.reject(&(&1 == nil))
+    |> Enum.count(&(&1 == "#"))
+  end
+
+  defp eight_direction_fns() do
+    [
+      fn {x, y} -> {x + 1, y + 1} end,
+      fn {x, y} -> {x + 1, y} end,
+      fn {x, y} -> {x + 1, y - 1} end,
+      fn {x, y} -> {x, y - 1} end,
+      fn {x, y} -> {x - 1, y - 1} end,
+      fn {x, y} -> {x - 1, y} end,
+      fn {x, y} -> {x - 1, y + 1} end,
+      fn {x, y} -> {x, y + 1} end
+    ]
   end
 
   def seat_state(seats, {x, y}), do: seats |> Map.fetch!(y) |> Map.fetch!(x)
