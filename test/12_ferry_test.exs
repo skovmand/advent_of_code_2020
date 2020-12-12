@@ -22,4 +22,14 @@ defmodule Advent20.FerryTest do
       assert Ferry.part_1(@input) == 845
     end
   end
+
+  describe "2" do
+    test "unit test" do
+      assert Ferry.part_2(@unit_test_input) == 286
+    end
+
+    test "puzzle answer: manhattan distance btw. location and start pos using waypoint" do
+      assert Ferry.part_2(@input) == 27016
+    end
+  end
 end
