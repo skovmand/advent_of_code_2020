@@ -96,6 +96,19 @@ defmodule Advent20.SeatingSystem do
     |> take_while_below_max(maximum)
   end
 
+  # Is the count of guests sitting in line of sight from the current coordinate above a given maximum?
+  defp occupied_direct_line_seat_count_above_max?(seats, coord, max_x, max_y, maximum) do
+    eight_direction_fns()
+    |> Stream.map(fn number_fn ->
+      Stream.iterate(coord, number_fn)
+      |> Stream.take_while(fn {x, y} -> x >= 0 and y >= 0 and x <= max_x and y <= max_y end)
+      |> Stream.drop(1)
+      |> Stream.map(&seat_state(seats, &1))
+      |> Enum.find(&(&1 in ["L", "#"]))
+    end)
+    |> take_while_below_max(maximum)
+  end
+
   defp take_while_below_max(seat_state_stream, maximum) do
     Enum.reduce_while(seat_state_stream, 0, fn seat_state, occupied_count ->
       occupied_seat_count =
@@ -114,19 +127,6 @@ defmodule Advent20.SeatingSystem do
       :reached_max -> true
       _ -> false
     end
-  end
-
-  # Is the count of guests sitting in line of sight from the current coordinate above a given maximum?
-  defp occupied_direct_line_seat_count_above_max?(seats, coord, max_x, max_y, maximum) do
-    eight_direction_fns()
-    |> Stream.map(fn number_fn ->
-      Stream.iterate(coord, number_fn)
-      |> Stream.take_while(fn {x, y} -> x >= 0 and y >= 0 and x <= max_x and y <= max_y end)
-      |> Stream.drop(1)
-      |> Stream.map(&seat_state(seats, &1))
-      |> Enum.find(&(&1 in ["L", "#"]))
-    end)
-    |> take_while_below_max(maximum)
   end
 
   defp eight_direction_fns() do
