@@ -29,7 +29,7 @@ defmodule Advent20.SeatingSystem do
   def part_1(input) do
     input
     |> parse()
-    |> simulate_seating_area(&occupied_adjacent_seat_count/4, 4)
+    |> simulate_seating_area(&occupied_adjacent_seat_count_above_max?/5, 4)
   end
 
   @doc """
@@ -39,7 +39,7 @@ defmodule Advent20.SeatingSystem do
   def part_2(input) do
     input
     |> parse()
-    |> simulate_seating_area(&direct_line_seat_count/4, 5)
+    |> simulate_seating_area(&occupied_direct_line_seat_count_above_max?/5, 5)
   end
 
   def simulate_seating_area(seat_data, seat_count_fn, occupied_limit) do
@@ -72,12 +72,14 @@ defmodule Advent20.SeatingSystem do
               {x, "."}
 
             {x, "L"} ->
-              occupied_seat_count = seat_count_fn.(seat_data.seats, {x, y}, seat_data.max_x, seat_data.max_y)
-              if occupied_seat_count == 0, do: {x, "#"}, else: {x, "L"}
+              anyone_sitting_adjacent? = seat_count_fn.(seat_data.seats, {x, y}, seat_data.max_x, seat_data.max_y, 0)
+              if not anyone_sitting_adjacent?, do: {x, "#"}, else: {x, "L"}
 
             {x, "#"} ->
-              occupied_seat_count = seat_count_fn.(seat_data.seats, {x, y}, seat_data.max_x, seat_data.max_y)
-              if occupied_seat_count >= occupied_limit, do: {x, "L"}, else: {x, "#"}
+              leave_seat? =
+                seat_count_fn.(seat_data.seats, {x, y}, seat_data.max_x, seat_data.max_y, occupied_limit - 1)
+
+              if leave_seat?, do: {x, "L"}, else: {x, "#"}
           end)
 
         {y, updated_row}
@@ -86,30 +88,45 @@ defmodule Advent20.SeatingSystem do
     %{seat_data | seats: applied_seats}
   end
 
-  defp occupied_adjacent_seat_count(seats, coord, max_x, max_y) do
+  # Is the count of guests sitting adjacent to the current coordinate above a given maximum?
+  defp occupied_adjacent_seat_count_above_max?(seats, coord, max_x, max_y, maximum) do
     coord
     |> adjacent_seats_coords(max_x, max_y)
     |> Enum.map(&seat_state(seats, &1))
-    |> Enum.count(&(&1 == "#"))
+    |> take_while_below_max(maximum)
   end
 
-  defp direct_line_seat_count(seats, coord, max_x, max_y) do
-    eight_direction_fns()
-    |> Enum.map(fn number_fn ->
-      Stream.iterate(coord, number_fn)
-      |> Enum.take_while(fn {x, y} -> x >= 0 and y >= 0 and x <= max_x and y <= max_y end)
-      |> Enum.drop(1)
-      |> Enum.find_value(fn coord ->
-        seat_state = seat_state(seats, coord)
-        if seat_state in ["L", "#"], do: seat_state, else: nil
-      end)
-      |> case do
-        "#" -> "#"
-        _ -> nil
+  defp take_while_below_max(seat_state_stream, maximum) do
+    Enum.reduce_while(seat_state_stream, 0, fn seat_state, occupied_count ->
+      occupied_seat_count =
+        case seat_state do
+          "#" -> occupied_count + 1
+          _ -> occupied_count
+        end
+
+      if occupied_seat_count > maximum do
+        {:halt, :reached_max}
+      else
+        {:cont, occupied_seat_count}
       end
     end)
-    |> Enum.reject(&(&1 == nil))
-    |> Enum.count(&(&1 == "#"))
+    |> case do
+      :reached_max -> true
+      _ -> false
+    end
+  end
+
+  # Is the count of guests sitting in line of sight from the current coordinate above a given maximum?
+  defp occupied_direct_line_seat_count_above_max?(seats, coord, max_x, max_y, maximum) do
+    eight_direction_fns()
+    |> Stream.map(fn number_fn ->
+      Stream.iterate(coord, number_fn)
+      |> Stream.take_while(fn {x, y} -> x >= 0 and y >= 0 and x <= max_x and y <= max_y end)
+      |> Stream.drop(1)
+      |> Stream.map(&seat_state(seats, &1))
+      |> Enum.find(&(&1 in ["L", "#"]))
+    end)
+    |> take_while_below_max(maximum)
   end
 
   defp eight_direction_fns() do
@@ -127,8 +144,7 @@ defmodule Advent20.SeatingSystem do
 
   def seat_state(seats, {x, y}), do: seats |> Map.fetch!(y) |> Map.fetch!(x)
 
-  # Get the adjecent seats from a given position
-  def adjacent_seats_coords({seat_x, seat_y}, max_x, max_y) do
+  defp adjacent_seats_coords({seat_x, seat_y}, max_x, max_y) do
     for x <- (seat_x - 1)..(seat_x + 1),
         y <- (seat_y - 1)..(seat_y + 1),
         x >= 0,
