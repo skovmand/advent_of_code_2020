@@ -7,19 +7,20 @@ defmodule Advent20.SeatingSystem do
     seats =
       input
       |> String.split("\n", trim: true)
-      |> Enum.map(fn line ->
+      |> Enum.with_index()
+      |> Enum.reduce(%{}, fn {line, y}, all_coordinates ->
         String.codepoints(line)
         |> Enum.with_index()
         |> Enum.reject(fn {char, _} -> char == "." end)
-        |> Enum.into(%{}, fn {codepoints, index} -> {index, codepoints} end)
+        |> Enum.reduce(all_coordinates, fn {char, x}, all_coordinates ->
+          Map.put(all_coordinates, {x, y}, char)
+        end)
       end)
-      |> Enum.with_index()
-      |> Enum.into(%{}, fn {lines, index} -> {index, lines} end)
 
     %{
       seats: seats,
-      max_x: seats[0] |> Map.keys() |> Enum.max(),
-      max_y: seats |> Map.keys() |> Enum.max()
+      max_x: seats |> Map.keys() |> Enum.max_by(fn {x, _y} -> x end) |> elem(0),
+      max_y: seats |> Map.keys() |> Enum.max_by(fn {_x, y} -> y end) |> elem(1)
     }
   end
 
@@ -28,9 +29,7 @@ defmodule Advent20.SeatingSystem do
           until no seats change state. How many seats end up occupied?
   """
   def part_1(input) do
-    input
-    |> parse()
-    |> simulate_seating_area(&occupied_adjacent_seat_count_above_max?/5, 4)
+    input |> parse() |> simulate_seating_area(&occupied_adjacent_seat_count_above_max?/5, 4)
   end
 
   @doc """
@@ -38,9 +37,7 @@ defmodule Advent20.SeatingSystem do
           once equilibrium is reached, how many seats end up occupied?
   """
   def part_2(input) do
-    input
-    |> parse()
-    |> simulate_seating_area(&occupied_direct_line_seat_count_above_max?/5, 5)
+    input |> parse() |> simulate_seating_area(&occupied_direct_line_seat_count_above_max?/5, 5)
   end
 
   def simulate_seating_area(seat_data, seat_count_fn, occupied_limit) do
@@ -50,37 +47,23 @@ defmodule Advent20.SeatingSystem do
       %{seats: seats}, %{seats: seats} -> {:halt, seats}
       seat_data, _ -> {:cont, seat_data}
     end)
-    |> count_occupied_seats()
-  end
-
-  defp count_occupied_seats(seats) do
-    seats
-    |> Map.values()
-    |> Enum.map(&Map.values/1)
-    |> Enum.map(fn line -> Enum.count(line, &(&1 == "#")) end)
-    |> Enum.sum()
+    |> Enum.count(fn {_coord, state} -> state == "#" end)
   end
 
   # Apply one round of seating rules, returning the updated state
   defp apply_seating_rules(seat_data, seat_count_fn, occupied_limit) do
     applied_seats =
       seat_data.seats
-      |> Enum.into(%{}, fn {y, row} ->
-        updated_row =
-          row
-          |> Enum.into(%{}, fn
-            {x, "L"} ->
-              anyone_sitting_adjacent? = seat_count_fn.(seat_data.seats, {x, y}, seat_data.max_x, seat_data.max_y, 0)
-              if not anyone_sitting_adjacent?, do: {x, "#"}, else: {x, "L"}
+      |> Enum.into(%{}, fn {{x, y} = coord, value} ->
+        case value do
+          "L" ->
+            anyone_sitting_adjacent? = seat_count_fn.(seat_data.seats, {x, y}, seat_data.max_x, seat_data.max_y, 0)
+            if not anyone_sitting_adjacent?, do: {coord, "#"}, else: {coord, "L"}
 
-            {x, "#"} ->
-              leave_seat? =
-                seat_count_fn.(seat_data.seats, {x, y}, seat_data.max_x, seat_data.max_y, occupied_limit - 1)
-
-              if leave_seat?, do: {x, "L"}, else: {x, "#"}
-          end)
-
-        {y, updated_row}
+          "#" ->
+            leave_seat? = seat_count_fn.(seat_data.seats, {x, y}, seat_data.max_x, seat_data.max_y, occupied_limit - 1)
+            if leave_seat?, do: {coord, "L"}, else: {coord, "#"}
+        end
       end)
 
     %{seat_data | seats: applied_seats}
@@ -90,7 +73,7 @@ defmodule Advent20.SeatingSystem do
   defp occupied_adjacent_seat_count_above_max?(seats, coord, max_x, max_y, maximum) do
     coord
     |> adjacent_seats_coords(max_x, max_y)
-    |> Enum.map(&seat_state(seats, &1))
+    |> Stream.map(&Map.get(seats, &1))
     |> take_while_below_max(maximum)
   end
 
@@ -101,7 +84,7 @@ defmodule Advent20.SeatingSystem do
       Stream.iterate(coord, number_fn)
       |> Stream.take_while(fn {x, y} -> x >= 0 and y >= 0 and x <= max_x and y <= max_y end)
       |> Stream.drop(1)
-      |> Stream.map(&seat_state(seats, &1))
+      |> Stream.map(&Map.get(seats, &1))
       |> Enum.find(&(&1 in ["L", "#"]))
     end)
     |> take_while_below_max(maximum)
@@ -139,8 +122,6 @@ defmodule Advent20.SeatingSystem do
       fn {x, y} -> {x, y + 1} end
     ]
   end
-
-  def seat_state(seats, {x, y}), do: seats |> Map.get(y) |> Map.get(x)
 
   defp adjacent_seats_coords({seat_x, seat_y}, max_x, max_y) do
     for x <- (seat_x - 1)..(seat_x + 1),
