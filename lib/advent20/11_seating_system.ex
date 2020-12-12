@@ -10,6 +10,7 @@ defmodule Advent20.SeatingSystem do
       |> Enum.map(fn line ->
         String.codepoints(line)
         |> Enum.with_index()
+        |> Enum.reject(fn {char, _} -> char == "." end)
         |> Enum.into(%{}, fn {codepoints, index} -> {index, codepoints} end)
       end)
       |> Enum.with_index()
@@ -68,9 +69,6 @@ defmodule Advent20.SeatingSystem do
         updated_row =
           row
           |> Enum.into(%{}, fn
-            {x, "."} ->
-              {x, "."}
-
             {x, "L"} ->
               anyone_sitting_adjacent? = seat_count_fn.(seat_data.seats, {x, y}, seat_data.max_x, seat_data.max_y, 0)
               if not anyone_sitting_adjacent?, do: {x, "#"}, else: {x, "L"}
@@ -142,7 +140,7 @@ defmodule Advent20.SeatingSystem do
     ]
   end
 
-  def seat_state(seats, {x, y}), do: seats |> Map.fetch!(y) |> Map.fetch!(x)
+  def seat_state(seats, {x, y}), do: seats |> Map.get(y) |> Map.get(x)
 
   defp adjacent_seats_coords({seat_x, seat_y}, max_x, max_y) do
     for x <- (seat_x - 1)..(seat_x + 1),
