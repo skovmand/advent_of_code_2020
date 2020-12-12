@@ -71,14 +71,13 @@ defmodule Advent20.SeatingSystem do
             {x, "."} ->
               {x, "."}
 
-            {x, seat_state} ->
+            {x, "L"} ->
               occupied_seat_count = seat_count_fn.(seat_data.seats, {x, y}, seat_data.max_x, seat_data.max_y)
+              if occupied_seat_count == 0, do: {x, "#"}, else: {x, "L"}
 
-              case {occupied_seat_count, seat_state} do
-                {0, "L"} -> {x, "#"}
-                {count, "#"} when count >= occupied_limit -> {x, "L"}
-                {_, letter} -> {x, letter}
-              end
+            {x, "#"} ->
+              occupied_seat_count = seat_count_fn.(seat_data.seats, {x, y}, seat_data.max_x, seat_data.max_y)
+              if occupied_seat_count >= occupied_limit, do: {x, "L"}, else: {x, "#"}
           end)
 
         {y, updated_row}
