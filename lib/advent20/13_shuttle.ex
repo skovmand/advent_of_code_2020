@@ -79,7 +79,7 @@ defmodule Advent20.Shuttle do
       buses
       |> Enum.map(&elem(&1, 0))
       |> Enum.chunk_every(2, 1, :discard)
-      |> Enum.all?(fn [mod_1, mod_2] -> gcd(mod_1, mod_2) == 1 end)
+      |> Enum.all?(fn [mod_1, mod_2] -> Integer.gcd(mod_1, mod_2) == 1 end)
 
     # Run the Chinese Remainder algorithm to find the x that solves all our congruences
     x =
@@ -116,8 +116,4 @@ defmodule Advent20.Shuttle do
     Stream.iterate(0, &(&1 + 1))
     |> Enum.find(fn value -> rem(base * value, modulus) == 1 end)
   end
-
-  # Find the greatest common divisor for two numbers
-  defp gcd(a, 0), do: abs(a)
-  defp gcd(a, b), do: gcd(b, rem(a, b))
 end
