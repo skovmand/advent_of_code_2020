@@ -25,8 +25,14 @@ defmodule Advent20.TicketTest do
       assert Ticket.part_1(input) == 71
     end
 
-    test "puzzle answer: number spoken at 2020" do
+    test "puzzle answer: ticket scanning error rate" do
       assert Ticket.part_1(@input) == 26941
+    end
+  end
+
+  describe "2" do
+    test "puzzle answer: departure fields multiplied" do
+      assert Ticket.part_2(@input) == 634_796_407_951
     end
   end
 end
