@@ -13,12 +13,12 @@ defmodule Advent20.Recitation do
   Part 1: Given your starting numbers, what will be the 2020th number spoken?
   """
   def solve(input, turn_requested) do
-    input_numbers = parse(input)
-
-    input_numbers
+    input
+    |> parse()
     |> start_state()
     |> setup_stream()
-    |> Enum.at(turn_requested - length(input_numbers) - 1)
+    |> Enum.find(&(&1.turn == turn_requested - 1))
+    |> Map.fetch!(:spoken)
   end
 
   defp start_state(number_list) do
@@ -32,16 +32,14 @@ defmodule Advent20.Recitation do
   end
 
   defp setup_stream(start_state) do
-    Stream.unfold(start_state, fn %{spoken: spoken, turn: turn, numbers: numbers} = state ->
+    Stream.iterate(start_state, fn %{spoken: spoken, turn: turn, numbers: numbers} = state ->
       next_spoken =
         case Map.get(numbers, spoken) do
           nil -> 0
           number -> turn - number
         end
 
-      state = %{state | spoken: next_spoken, numbers: Map.put(numbers, spoken, turn), turn: turn + 1}
-
-      {state.spoken, state}
+      %{state | spoken: next_spoken, numbers: Map.put(numbers, spoken, turn), turn: turn + 1}
     end)
   end
 end
