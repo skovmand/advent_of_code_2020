@@ -38,11 +38,15 @@ defmodule Advent20.Cubes do
     |> Enum.count(&(&1 == "#"))
   end
 
+  # The stream receives a map of coordinates to all active cubes
+  # It calculates neighbours of these (since the neighbours are the only fields that can change)
+  # Then, it evaluates each of these coordinates to get the updates cube state for the coord
+  # And lastly filters out all inactive cubes (so the next iteration receives only active cubes)
   defp stream(coordinates, dimensions) do
     Stream.iterate(coordinates, fn coordinates ->
       # Get the MapSet of neighbours of every active cube, these are the coordinates we consider
       calculate_neighbours(coordinates, dimensions)
-      |> Enum.map(fn coord ->
+      |> Stream.map(fn coord ->
         active_neighbours =
           coord
           |> neighbours(dimensions)
@@ -59,7 +63,7 @@ defmodule Advent20.Cubes do
 
         {coord, new_state}
       end)
-      |> Enum.reject(fn {_coord, value} -> value == "." end)
+      |> Stream.reject(fn {_coord, value} -> value == "." end)
       |> Enum.into(%{})
     end)
   end
