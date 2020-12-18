@@ -75,19 +75,14 @@ defmodule Advent20.OperationOrder do
     do_parse_rpe(equation, Enum.reverse(remaning_parens_ops) ++ postfix, new_opstack, precedence)
   end
 
-  # Handle operations
+  # Handle operations with + or * -->
   # If the first element in the opstack is a parens, just push the operator to the opstack
   defp do_parse_rpe([operator | equation], postfix, [:start_parens | _] = opstack, precedence)
        when operator in [:*, :+] do
     do_parse_rpe(equation, postfix, [operator | opstack], precedence)
   end
 
-  # The same if the opstack is empty, just push the operator
-  defp do_parse_rpe([operator | equation], postfix, [] = opstack, precedence) when operator in [:*, :+] do
-    do_parse_rpe(equation, postfix, [operator | opstack], precedence)
-  end
-
-  # If the first operator in the opstack has a precedence
+  # If the operator is * or + and we have don't have a parens first in the opstack
   defp do_parse_rpe([operator | equation], postfix, opstack, precedence) when operator in [:*, :+] do
     operator_precedence = Map.fetch!(precedence, operator)
     first_opstack_element_precedence = Map.fetch!(precedence, List.first(opstack))
@@ -102,6 +97,7 @@ defmodule Advent20.OperationOrder do
     end
   end
 
+  # We are finished!
   defp do_parse_rpe([], postfix, [], _), do: postfix |> Enum.reverse()
 
   defp evaluate_postfix(postfix) do
