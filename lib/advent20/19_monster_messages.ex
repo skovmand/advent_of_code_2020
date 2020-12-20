@@ -24,11 +24,11 @@ defmodule Advent20.MonsterMessages do
         Enum.find_value(regexes, &Regex.run(&1, string, capture: :all_but_first))
       end)
       |> Enum.map(fn
-        [index, char] when char in ["a", "b"] -> {index, [{:char, char}]}
-        [index, r] -> {index, [{:r, r}]}
-        [index, r1, r2] -> {index, [{:r, r1}, {:r, r2}]}
+        [index, char] when char in ["a", "b"] -> {index, [[{:char, char}]]}
+        [index, r] -> {index, [[{:r, r}]]}
+        [index, r1, r2] -> {index, [[{:r, r1}, {:r, r2}]]}
         [index, r1, "|", r2] -> {index, [[{:r, r1}], [{:r, r2}]]}
-        [index, r1, r2, r3] -> {index, [{:r, r1}, {:r, r2}, {:r, r3}]}
+        [index, r1, r2, r3] -> {index, [[{:r, r1}, {:r, r2}, {:r, r3}]]}
         [index, r1, "|", r2, r3] -> {index, [[{:r, r1}], [{:r, r2}, {:r, r3}]]}
         [index, r1, r2, "|", r3, r4] -> {index, [[{:r, r1}, {:r, r2}], [{:r, r3}, {:r, r4}]]}
         [index, r1, r2, "|", r3, r4, r5] -> {index, [[{:r, r1}, {:r, r2}], [{:r, r3}, {:r, r4}, {:r, r5}]]}
@@ -56,9 +56,53 @@ defmodule Advent20.MonsterMessages do
     Enum.count(messages, &valid?(&1, rules))
   end
 
+  # For a message to be valid, it must:
+  # (1) Completely match the rule 0, which means that all the sub-rules for rule 0 are satistied
+  # (2) Be completely consumed by the rules, there can be no additional characters
+  #
+  # Ad 1):
+  # This is handled by returning [] in the rules below, which is then removed by flat_map.
+  # This is done if we run out of message to parse before the rules are all evaluated.
+  #
+  # Ad 2):
+  # After Day 19 part 2, a single message can have multiple validation results due to the loops.
+  # This means that a message can finish validation in multiple ways where all rules have been consumed.
+  # However, the message is still only valid if the message has been completely consumed, which means
+  # that the message is the empty string, "".
   defp valid?(message, rules) do
-    _root_validator = Map.fetch!(rules, "0")
+    "" in match_outer_rule_list("0", message, rules)
+  end
 
-    true
+  # Map over the outer rule levels (e.g. if there is an OR, it handles both cases)
+  # Will be called with a list of rule lists, e.g. [[{r: "42"}], [{r: "42"}, {r: "8"}]]
+  # This must be used everytime we dive into a sub-rule, because it might have multiple matches
+  defp match_outer_rule_list(rule_no, message, rules) do
+    rules
+    |> Map.fetch!(rule_no)
+    |> Enum.flat_map(&evaluate_rule_list(&1, message, rules))
+  end
+
+  # A rule list is empty, return the resulting message
+  defp evaluate_rule_list([], message, _rules), do: [message]
+
+  # We have hit a rule
+  # First get all possible matches for that rule.
+  # Then branch out by evaluating the *remaning* rules on top of each of the possibilities for remaning message.
+  defp evaluate_rule_list([{:r, rule} | rule_tail], message, rules) do
+    rule
+    |> match_outer_rule_list(message, rules)
+    |> Enum.flat_map(&evaluate_rule_list(rule_tail, &1, rules))
+  end
+
+  # The rule has matched a char with no further rules, return remaning string after char is stripped.
+  defp evaluate_rule_list([{:char, char} | []], message, _rules) do
+    if String.starts_with?(message, char) do
+      # We have a match, return remaining string, which might also be "".
+      {_, remaining} = String.split_at(message, 1)
+      [remaining]
+    else
+      # We have no match, return empty list (which will be filtered away by Enum.flat_map)
+      []
+    end
   end
 end

@@ -127,7 +127,7 @@ defmodule Advent20.MonsterMessagesTest do
     end
 
     test "puzzle answer: valid message count after updating rules" do
-      assert MonsterMessages.part_2(@input) == :what
+      assert MonsterMessages.part_2(@input) == 277
     end
   end
 end
