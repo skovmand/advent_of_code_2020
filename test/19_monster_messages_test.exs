@@ -31,12 +31,6 @@ defmodule Advent20.MonsterMessagesTest do
   end
 
   describe "2" do
-    defp patch_input(input) do
-      input
-      |> String.replace("8: 42", "8: 42 | 42 8")
-      |> String.replace("11: 42 31", "11: 42 31 | 42 11 31")
-    end
-
     p2_unit_test_input = """
     42: 9 14 | 10 1
     9: 14 27 | 1 26
@@ -109,18 +103,16 @@ defmodule Advent20.MonsterMessagesTest do
     p2_unit_test_messages
     |> String.split("\n", trim: true)
     |> Enum.map(fn message ->
-      test "unquote #{message}" do
-        single_message_input =
-          """
-          #{unquote(p2_unit_test_input)}
+      test "message #{message}" do
+        input = """
+        #{unquote(p2_unit_test_input)}
 
-          #{unquote(message)}
-          """
-          |> patch_input()
+        #{unquote(message)}
+        """
 
         expected_result = if unquote(message) in unquote(valid_messages), do: 1, else: 0
 
-        assert MonsterMessages.part_1(single_message_input) == expected_result
+        assert MonsterMessages.part_2(input) == expected_result
       end
     end)
 
@@ -131,20 +123,11 @@ defmodule Advent20.MonsterMessagesTest do
       #{unquote(p2_unit_test_messages)}
       """
 
-      assert MonsterMessages.part_1(input) == 12
+      assert MonsterMessages.part_2(input) == 12
     end
 
     test "puzzle answer: valid message count after updating rules" do
-      input =
-        """
-        #{unquote(p2_unit_test_input)}
-
-        #{unquote(p2_unit_test_messages)}
-        """
-        |> patch_input()
-
-      updated_input = patch_input(@input)
-      assert MonsterMessages.part_1(updated_input) == :what
+      assert MonsterMessages.part_2(@input) == :what
     end
   end
 end
