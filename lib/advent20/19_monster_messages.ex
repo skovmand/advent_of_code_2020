@@ -1,6 +1,33 @@
 defmodule Advent20.MonsterMessages do
   @moduledoc """
   Day 19: Monster Messages
+
+  Daily logbook: This was very tough. I thought about how to implement it during saturday and ended up
+  dynamically creating validator functions, which would consume the input string so that if nothing was
+  left, and the rules were empty, the message would be valid. This seemed like a good idea to begin with,
+  but ended up being very verbose and repetitive. But it worked for part 1.
+
+  Then came part 2. And it didn't work. At all. I tried hacking together different approaches, counting
+  loop iterations, etc. Gave up in the end, frustrated. Then came day 2 and a little hint from Lasse:
+
+  "Hint 2: Tænk over denne:"
+
+  ```
+  0: 1 2
+  1: a | a 1
+  2: a
+
+  aaa
+  ```
+
+  Thinking about it, I see that it means that a message can both be valid and invalid according to the
+  validation rules, because some of them might fail and perhaps one will be successful. In this case,
+  we would first validate "aaa" against "0: a a" which would be invalid, then:
+  "0: (a 1) a" -> "0: (a (a)) a" -> "0: a a a" which would validate.
+
+  This meant that my approach with the validator functions was hard to get working. First of all because
+  it was clunky to refactor. Secondly because it didn't handle branching. I read and studied @lasseeberts
+  solutions for handling the branches with Enum.flat_map and implemented my solution that way too.
   """
 
   defp parse(input) do
