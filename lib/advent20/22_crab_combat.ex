@@ -21,6 +21,14 @@ defmodule Advent20.CrabCombat do
     |> final_score()
   end
 
+  def part_2(input) do
+    [deck_1, deck_2] = parse(input)
+
+    play_recursive_combat(deck_1, deck_2, MapSet.new())
+    |> elem(1)
+    |> final_score()
+  end
+
   defp play_cards([], winner), do: winner
   defp play_cards(winner, []), do: winner
 
@@ -32,6 +40,41 @@ defmodule Advent20.CrabCombat do
       play_cards(rest_1 ++ [top_card_1] ++ [top_card_2], rest_2)
     else
       play_cards(rest_1, rest_2 ++ [top_card_2] ++ [top_card_1])
+    end
+  end
+
+  defp play_recursive_combat(winning_deck, [], _), do: {:player1, winning_deck}
+  defp play_recursive_combat([], winning_deck, _), do: {:player2, winning_deck}
+
+  defp play_recursive_combat(deck_1, deck_2, seen) do
+    if {deck_1, deck_2} in seen do
+      {:player1, deck_1}
+    else
+      # Loop check: If we have seen deck_1 and deck_2 in this game before, player 1 wins the game
+      [top_card_1 | rest_1] = deck_1
+      [top_card_2 | rest_2] = deck_2
+
+      seen = MapSet.put(seen, {deck_1, deck_2})
+
+      # Check: Do both players have at least the number of cards remaining in their decks as the value of top card?
+      round_winner =
+        if top_card_1 <= length(rest_1) and top_card_2 <= length(rest_2) do
+          sub_deck_1 = Enum.take(rest_1, top_card_1)
+          sub_deck_2 = Enum.take(rest_2, top_card_2)
+
+          case play_recursive_combat(sub_deck_1, sub_deck_2, MapSet.new()) do
+            {:player1, _} -> :player1
+            {:player2, _} -> :player2
+          end
+        else
+          if top_card_1 > top_card_2, do: :player1, else: :player2
+        end
+
+      if round_winner == :player1 do
+        play_recursive_combat(rest_1 ++ [top_card_1] ++ [top_card_2], rest_2, seen)
+      else
+        play_recursive_combat(rest_1, rest_2 ++ [top_card_2] ++ [top_card_1], seen)
+      end
     end
   end
 
