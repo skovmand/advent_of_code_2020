@@ -18,12 +18,7 @@ defmodule Advent20.CrabCombat do
     [deck_1, deck_2] = parse(input)
 
     play_cards(deck_1, deck_2)
-    |> Enum.reverse()
-    |> Enum.with_index()
-    |> Enum.map(fn {card, i} -> {card, i + 1} end)
-    |> Enum.reduce(0, fn {card, i}, acc ->
-      acc + card * i
-    end)
+    |> final_score()
   end
 
   defp play_cards([], winner), do: winner
@@ -38,5 +33,15 @@ defmodule Advent20.CrabCombat do
     else
       play_cards(rest_1, rest_2 ++ [top_card_2] ++ [top_card_1])
     end
+  end
+
+  defp final_score(winning_deck) do
+    winning_deck
+    |> Enum.reverse()
+    |> Enum.with_index()
+    |> Enum.map(fn {card, i} -> {card, i + 1} end)
+    |> Enum.reduce(0, fn {card, i}, acc ->
+      acc + card * i
+    end)
   end
 end
