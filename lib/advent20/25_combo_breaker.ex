@@ -25,13 +25,14 @@ defmodule Advent20.ComboBreaker do
     |> Enum.map(&String.to_integer/1)
   end
 
-  # Blarh, it turns out Elixir has no :math.pow/3 as Pythons pow/3:
+  # Blarh, it turns out Elixir has no :math.pow/3 as Pythons pow/3 for doing
+  # base_number to power exp modulo mod.
   #
   # From python 3.9 docs: pow(base, exp, [mod]): Return base to the power exp;
   # if mod is present, return base to the power exp, modulo mod (computed more
   # efficiently than pow(base, exp) % mod)
   #
-  # I have made a quickfix to this by making a cache
+  # I have made a quickfix to this by simply making a cache
   def part_1(input) do
     Cache.start_link()
     pubkeys = parse(input)
