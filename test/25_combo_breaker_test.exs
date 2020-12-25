@@ -1,5 +1,5 @@
 defmodule Advent20.ComboBreakerTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case
 
   alias Advent20.ComboBreaker
 
@@ -31,6 +31,8 @@ defmodule Advent20.ComboBreakerTest do
       assert ComboBreaker.part_1(input) == 14_897_079
     end
 
+    @tag timeout: 120_000
+    # The test runs in ~40 sec on my machine, but not on GitHub Actions, which needs a longer timeout
     test "puzzle answer" do
       assert ComboBreaker.part_1(@input) == 9_177_528
     end
