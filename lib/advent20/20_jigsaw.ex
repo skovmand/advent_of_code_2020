@@ -150,7 +150,7 @@ defmodule Advent20.Jigsaw do
       end)
       |> Enum.count()
 
-    rough_waters = Enum.count(coordinate_system, fn {_coord, val} -> val == "#" end) - monster_fields
+    Enum.count(coordinate_system, fn {_coord, val} -> val == "#" end) - monster_fields
   end
 
   # Convert the final puzzle image into a coordinate system
