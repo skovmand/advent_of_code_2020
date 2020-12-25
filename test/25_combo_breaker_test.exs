@@ -7,6 +7,8 @@ defmodule Advent20.ComboBreakerTest do
 
   describe "1" do
     test "transform_subject_number" do
+      ComboBreaker.Cache.start_link()
+
       # Calculate public key for the card
       assert Advent20.ComboBreaker.transform_subject_number(7, 8) == 5_764_801
 
@@ -26,7 +28,7 @@ defmodule Advent20.ComboBreakerTest do
       17807724
       """
 
-      assert ComboBreaker.part_1_test(input) == 14_897_079
+      assert ComboBreaker.part_1(input) == 14_897_079
     end
 
     test "puzzle answer" do
