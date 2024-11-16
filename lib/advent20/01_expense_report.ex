@@ -3,54 +3,71 @@ defmodule Advent20.ExpenseReport do
   Day 1: Report Repair
   """
 
-  defp number_set(input_filename) do
-    input_filename
-    |> File.stream!()
-    |> Stream.map(&String.trim/1)
-    |> Stream.map(&String.to_integer/1)
+  defp parse_input_to_number_set(input) do
+    input
+    |> String.split("\n", trim_whitespace: true)
+    |> Enum.reject(&(&1 == ""))
+    |> Enum.map(&String.to_integer/1)
     |> MapSet.new()
+  end
+
+  def run() do
+    input = IO.read(:stdio, :eof)
+
+    {:ok, {first, second}} = find_sum_of_2_numbers(input, 2020)
+    IO.puts("Part 1")
+    IO.puts("First: #{Integer.to_string(first)}, Second: #{Integer.to_string(second)}, Product: #{first * second}")
+
+    {:ok, {first, second, third}} = find_sum_of_3_numbers(input, 2020)
+    IO.puts("Part 2")
+
+    IO.puts(
+      "First: #{Integer.to_string(first)}, Second: #{Integer.to_string(second)}, Third: #{Integer.to_string(third)}, Product: #{first * second * third}"
+    )
   end
 
   @doc """
   Part 1: Find two numbers in a set that add up to a sum
   """
-  def find_sum_2(input_filename, sum) do
-    input_filename
-    |> number_set()
-    |> find_sum(sum)
+  def find_sum_of_2_numbers(input, sum) do
+    input
+    |> parse_input_to_number_set()
+    |> find_sum_2(sum)
+  end
+
+  # Find the first match of two numbers in a list of numbers that add up to a given sum
+  def find_sum_2(number_set, sum) do
+    do_find_sum_2(MapSet.to_list(number_set), number_set, sum)
+  end
+
+  defp do_find_sum_2([], _, _), do: :error
+
+  defp do_find_sum_2([current_number | rest], number_set, sum_to_find) do
+    remaining_sum = sum_to_find - current_number
+
+    case MapSet.member?(number_set, remaining_sum) do
+      true -> {:ok, {current_number, remaining_sum}}
+      false -> do_find_sum_2(rest, number_set, sum_to_find)
+    end
   end
 
   @doc """
   Part 2: Find three numbers in a set that add up to a sum
   """
-  def find_sum_3(input_filename, sum) do
-    number_set = number_set(input_filename)
+  def find_sum_of_3_numbers(input, sum) do
+    number_set = parse_input_to_number_set(input)
 
-    Enum.reduce_while(number_set, nil, fn number_1, nil ->
+    Enum.find_value(number_set, fn number_1 ->
       remaining_sum = sum - number_1
 
-      number_set
-      |> MapSet.delete(number_1)
-      |> find_sum(remaining_sum)
-      |> case do
-        {number_2, number_3} -> {:halt, {number_1, number_2, number_3}}
-        nil -> {:cont, nil}
+      case find_sum_2(MapSet.delete(number_set, number_1), remaining_sum) do
+        {:ok, {number_2, number_3}} -> {:ok, {number_1, number_2, number_3}}
+        :error -> false
       end
     end)
-  end
-
-  # Find the first match of two numbers in a list of numbers that add up to a given sum
-  def find_sum(number_set, sum) do
-    Enum.reduce_while(number_set, nil, fn number, nil ->
-      remaining_sum = sum - number
-
-      number_set
-      |> MapSet.delete(number)
-      |> MapSet.member?(remaining_sum)
-      |> case do
-        true -> {:halt, {number, remaining_sum}}
-        false -> {:cont, nil}
-      end
-    end)
+    |> case do
+      nil -> :error
+      result -> result
+    end
   end
 end
