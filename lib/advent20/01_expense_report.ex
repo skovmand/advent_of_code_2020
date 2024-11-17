@@ -3,36 +3,34 @@ defmodule Advent20.ExpenseReport do
   Day 1: Report Repair
   """
 
-  defp parse_input_to_number_set(input) do
-    input
-    |> String.split("\n", trim_whitespace: true)
-    |> Enum.reject(&(&1 == ""))
-    |> Enum.map(&String.to_integer/1)
-    |> MapSet.new()
+  import Advent20.Util
+
+  @doc """
+  Run using `cat input_files/01_expense_report.txt | mix run -e "Advent20.ExpenseReport.run()"`
+  """
+  def run() do
+    input = read_from_stdin()
+
+    {:ok, {first, second}} = find_sum_of_2_numbers(input)
+    print_solution(1, 1, "First: #{first}, Second: #{second}, Product: #{first * second}")
+
+    {:ok, {first, second, third}} = find_sum_of_3_numbers(input)
+    print_solution(1, 2, "First: #{first}, Second: #{second}, Third: #{third}, Product: #{first * second * third}")
   end
 
-  def run() do
-    input = IO.read(:stdio, :eof)
-
-    {:ok, {first, second}} = find_sum_of_2_numbers(input, 2020)
-    IO.puts("Part 1")
-    IO.puts("First: #{Integer.to_string(first)}, Second: #{Integer.to_string(second)}, Product: #{first * second}")
-
-    {:ok, {first, second, third}} = find_sum_of_3_numbers(input, 2020)
-    IO.puts("Part 2")
-
-    IO.puts(
-      "First: #{Integer.to_string(first)}, Second: #{Integer.to_string(second)}, Third: #{Integer.to_string(third)}, Product: #{first * second * third}"
-    )
+  defp parse(input) do
+    input
+    |> parse_to_number_list()
+    |> MapSet.new()
   end
 
   @doc """
   Part 1: Find two numbers in a set that add up to a sum
   """
-  def find_sum_of_2_numbers(input, sum) do
+  def find_sum_of_2_numbers(input) do
     input
-    |> parse_input_to_number_set()
-    |> find_sum_2(sum)
+    |> parse()
+    |> find_sum_2(2020)
   end
 
   # Find the first match of two numbers in a list of numbers that add up to a given sum
@@ -54,13 +52,13 @@ defmodule Advent20.ExpenseReport do
   @doc """
   Part 2: Find three numbers in a set that add up to a sum
   """
-  def find_sum_of_3_numbers(input, sum) do
-    number_set = parse_input_to_number_set(input)
+  def find_sum_of_3_numbers(input) do
+    number_set = parse(input)
 
     Enum.find_value(number_set, fn number_1 ->
-      remaining_sum = sum - number_1
+      remaining_sum = 2020 - number_1
 
-      case find_sum_2(MapSet.delete(number_set, number_1), remaining_sum) do
+      case find_sum_2(number_set, remaining_sum) do
         {:ok, {number_2, number_3}} -> {:ok, {number_1, number_2, number_3}}
         :error -> false
       end
