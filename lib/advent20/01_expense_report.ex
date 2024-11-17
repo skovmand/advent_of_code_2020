@@ -18,47 +18,48 @@ defmodule Advent20.ExpenseReport do
     print_solution(1, 2, "First: #{first}, Second: #{second}, Third: #{third}, Product: #{first * second * third}")
   end
 
-  defp parse(input) do
-    input
-    |> parse_to_number_list()
-    |> MapSet.new()
+  @doc """
+  Part 1: Find 2 numbers in the text input that add up to 2020
+  """
+  def find_sum_of_2_numbers(input) do
+    number_list = parse_to_number_list(input)
+
+    # To only generate this set once
+    number_set = MapSet.new(number_list)
+
+    find_sum_2(number_list, number_set, 2020)
   end
 
   @doc """
-  Part 1: Find two numbers in a set that add up to a sum
+  Find the first match of two numbers in a list of numbers that add up to a given sum
   """
-  def find_sum_of_2_numbers(input) do
-    input
-    |> parse()
-    |> find_sum_2(2020)
-  end
+  def find_sum_2([], _, _), do: :error
 
-  # Find the first match of two numbers in a list of numbers that add up to a given sum
-  def find_sum_2(number_set, sum) do
-    do_find_sum_2(MapSet.to_list(number_set), number_set, sum)
-  end
+  def find_sum_2([n | rest], set, sum) do
+    remaining_sum = sum - n
 
-  defp do_find_sum_2([], _, _), do: :error
-
-  defp do_find_sum_2([current_number | rest], number_set, sum_to_find) do
-    remaining_sum = sum_to_find - current_number
-
-    case MapSet.member?(number_set, remaining_sum) do
-      true -> {:ok, {current_number, remaining_sum}}
-      false -> do_find_sum_2(rest, number_set, sum_to_find)
+    if remaining_sum > 0 and MapSet.member?(set, remaining_sum) do
+      {:ok, {n, remaining_sum}}
+    else
+      find_sum_2(rest, set, sum)
     end
   end
 
   @doc """
-  Part 2: Find three numbers in a set that add up to a sum
+  Part 2: Find 3 numbers in the text input that add up to 2020
   """
   def find_sum_of_3_numbers(input) do
-    number_set = parse(input)
+    number_list = parse_to_number_list(input)
+    number_set = number_list |> MapSet.new()
 
+    find_sum_3(number_list, number_set, 2020)
+  end
+
+  def find_sum_3(number_list, number_set, sum) do
     Enum.find_value(number_set, fn number_1 ->
-      remaining_sum = 2020 - number_1
+      remaining_sum = sum - number_1
 
-      case find_sum_2(number_set, remaining_sum) do
+      case find_sum_2(number_list, number_set, remaining_sum) do
         {:ok, {number_2, number_3}} -> {:ok, {number_1, number_2, number_3}}
         :error -> false
       end
